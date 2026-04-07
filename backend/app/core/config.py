@@ -1,13 +1,8 @@
-from pydantic_settings import BaseSettings
-from pydantic import ConfigDict
-from functools import lru_cache
+import os
+from typing import Optional, List
 
 
-class Settings(BaseSettings):
-    model_config = ConfigDict(
-        env_file=".env", env_file_encoding="utf-8", extra="ignore"
-    )
-
+class Settings:
     APP_NAME: str = "Lead Gen Automation"
     APP_VERSION: str = "1.0.0"
     DEBUG: bool = False
@@ -42,7 +37,7 @@ class Settings(BaseSettings):
     DUCKDUCKGO_MAX_RESULTS: int = 20
     REQUEST_TIMEOUT: int = 30
 
-    CORS_ORIGINS: list[str] = ["http://localhost:3000", "http://localhost:8000"]
+    CORS_ORIGINS: List[str] = ["http://localhost:3000", "http://localhost:8000"]
 
     AGENCY_NAME: str = "My Agency"
     AGENCY_EMAIL: str = ""
@@ -50,7 +45,37 @@ class Settings(BaseSettings):
     GOOGLE_SHEETS_CREDENTIALS_PATH: str = "config/credentials.json"
     GOOGLE_SHEETS_SPREADSHEET_ID: str = ""
 
+    def __init__(self):
+        self.APP_NAME = os.getenv("APP_NAME", self.APP_NAME)
+        self.APP_VERSION = os.getenv("APP_VERSION", self.APP_VERSION)
+        self.DEBUG = os.getenv("DEBUG", "false").lower() == "true"
+        self.DATABASE_URL = os.getenv("DATABASE_URL", self.DATABASE_URL)
+        self.REDIS_URL = os.getenv("REDIS_URL", self.REDIS_URL)
+        self.CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL", self.CELERY_BROKER_URL)
+        self.CELERY_RESULT_BACKEND = os.getenv(
+            "CELERY_RESULT_BACKEND", self.CELERY_RESULT_BACKEND
+        )
+        self.SMTP_HOST = os.getenv("SMTP_HOST", self.SMTP_HOST)
+        self.SMTP_PORT = int(os.getenv("SMTP_PORT", str(self.SMTP_PORT)))
+        self.SMTP_USER = os.getenv("SMTP_USER", self.SMTP_USER)
+        self.SMTP_PASSWORD = os.getenv("SMTP_PASSWORD", self.SMTP_PASSWORD)
+        self.SMTP_USE_TLS = os.getenv("SMTP_USE_TLS", "true").lower() == "true"
+        self.EMAIL_FROM = os.getenv("EMAIL_FROM", self.EMAIL_FROM)
+        self.HUNTER_IO_API_KEY = os.getenv("HUNTER_IO_API_KEY", self.HUNTER_IO_API_KEY)
+        self.ZEROBOUNCE_API_KEY = os.getenv(
+            "ZEROBOUNCE_API_KEY", self.ZEROBOUNCE_API_KEY
+        )
+        self.TARGET_INDUSTRY = os.getenv("TARGET_INDUSTRY", self.TARGET_INDUSTRY)
+        self.TARGET_LOCATION = os.getenv("TARGET_LOCATION", self.TARGET_LOCATION)
+        self.AGENCY_NAME = os.getenv("AGENCY_NAME", self.AGENCY_NAME)
+        self.AGENCY_EMAIL = os.getenv("AGENCY_EMAIL", self.AGENCY_EMAIL)
 
-@lru_cache()
+
+_settings: Optional[Settings] = None
+
+
 def get_settings() -> Settings:
-    return Settings()
+    global _settings
+    if _settings is None:
+        _settings = Settings()
+    return _settings
