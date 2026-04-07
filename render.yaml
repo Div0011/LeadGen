@@ -5,22 +5,22 @@ services:
     env:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: leadgen
-    volumes:
-      - /var/lib/postgresql/data
-    pricing: free
+
   - type: web
     name: leadgen-backend
     buildCommand: pip install -r requirements.txt
     startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
     env:
       - DATABASE_URL: postgres://postgres:${DB_PASSWORD}@leadgen-db:5432/leadgen
-      - REDIS_URL: redis://redis:6379/0
       - SMTP_HOST: smtp.gmail.com
       - SMTP_PORT: "587"
       - SMTP_USE_TLS: "true"
     runtime: python
     repo: https://github.com/Div0011/LeadGen
     rootDir: backend
+    depends_on:
+      - leadgen-db
+
   - type: web
     name: leadgen-frontend
     buildCommand: npm install && npm run build
