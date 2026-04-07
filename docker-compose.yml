@@ -27,8 +27,8 @@ services:
   # Backend API
   backend:
     build:
-      context: ./backend
-      dockerfile: ../docker/Dockerfile.backend
+      context: .
+      dockerfile: docker/Dockerfile.backend
     restart: unless-stopped
     env_file:
       - ./backend/.env
@@ -46,8 +46,8 @@ services:
   # Frontend Next.js
   frontend:
     build:
-      context: ./frontend
-      dockerfile: ../docker/Dockerfile.frontend
+      context: .
+      dockerfile: docker/Dockerfile.frontend
     restart: unless-stopped
     environment:
       NEXT_PUBLIC_API_URL: ${API_URL:-http://localhost:8000}

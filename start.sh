@@ -14,11 +14,8 @@ echo ""
 # Get the directory where this script is located
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-# Check if we're in the right directory
-if [ ! -d "lead_gen_automation" ]; then
-    echo -e "${YELLOW}Running from: $SCRIPT_DIR${NC}"
-    cd lead_gen_automation || { echo "Failed to cd to lead_gen_automation"; exit 1; }
-fi
+# Navigate to the script directory
+cd "$SCRIPT_DIR"
 
 echo -e "${GREEN}✓ Starting Backend...${NC}"
 
