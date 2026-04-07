@@ -8,7 +8,6 @@ services:
     volumes:
       - /var/lib/postgresql/data
     pricing: free
-
   - type: web
     name: leadgen-backend
     buildCommand: pip install -r requirements.txt
@@ -22,7 +21,6 @@ services:
     runtime: python
     repo: https://github.com/Div0011/LeadGen
     rootDir: backend
-
   - type: web
     name: leadgen-frontend
     buildCommand: npm install && npm run build
