@@ -1,0 +1,68 @@
+from pydantic import BaseModel, EmailStr, Field
+from typing import Optional
+from datetime import datetime
+from uuid import UUID
+from enum import Enum
+
+
+class LeadStatusEnum(str, Enum):
+    scraped = "scraped"
+    validated = "validated"
+    sent = "sent"
+    replied = "replied"
+    bounced = "bounced"
+
+
+class LeadCreate(BaseModel):
+    business_name: str = Field(..., min_length=1, max_length=255)
+    website: Optional[str] = Field(None, max_length=500)
+    contact_person: Optional[str] = Field(None, max_length=255)
+    email: EmailStr
+    linkedin: Optional[str] = Field(None, max_length=500)
+    source: Optional[str] = Field("manual", max_length=100)
+    notes: Optional[str] = None
+
+
+class LeadUpdate(BaseModel):
+    business_name: Optional[str] = Field(None, max_length=255)
+    website: Optional[str] = Field(None, max_length=500)
+    contact_person: Optional[str] = Field(None, max_length=255)
+    email: Optional[EmailStr] = None
+    linkedin: Optional[str] = Field(None, max_length=500)
+    status: Optional[LeadStatusEnum] = None
+    date_sent: Optional[datetime] = None
+    date_replied: Optional[datetime] = None
+    reply_content: Optional[str] = None
+    notes: Optional[str] = None
+
+
+class LeadResponse(BaseModel):
+    id: UUID
+    business_name: str
+    website: Optional[str]
+    contact_person: Optional[str]
+    email: str
+    linkedin: Optional[str]
+    status: LeadStatusEnum
+    date_sent: Optional[datetime]
+    date_replied: Optional[datetime]
+    reply_content: Optional[str]
+    source: Optional[str]
+    notes: Optional[str]
+    brochure_sent: Optional[str] = "false"
+    date_brochure_sent: Optional[datetime] = None
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class LeadFilter(BaseModel):
+    status: Optional[LeadStatusEnum] = None
+    source: Optional[str] = None
+    date_from: Optional[datetime] = None
+    date_to: Optional[datetime] = None
+    search: Optional[str] = None
+    skip: int = Field(0, ge=0)
+    limit: int = Field(50, ge=1, le=200)
