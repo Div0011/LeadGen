@@ -1,7 +1,7 @@
 services:
-  - type: web
+  - type: postgres
     name: leadgen-db
-    image: postgres:16-alpine
+    plan: free
     env:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: leadgen
@@ -20,12 +20,3 @@ services:
     rootDir: backend
     depends_on:
       - leadgen-db
-
-  - type: web
-    name: leadgen-frontend
-    buildCommand: npm install && npm run build
-    startCommand: npm start
-    env:
-      - NEXT_PUBLIC_API_URL: ${API_URL}
-    repo: https://github.com/Div0011/LeadGen
-    rootDir: frontend
