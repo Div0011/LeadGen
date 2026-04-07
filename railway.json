@@ -1,0 +1,48 @@
+{
+  "name": "leadgen",
+  "version": 1,
+  "database": {
+    "plan": "free",
+    "name": "leadgen_db"
+  },
+  "services": [
+    {
+      "name": "backend",
+      "github": {
+        "repo": "Div0011/LeadGen",
+        "branch": "main",
+        "rootDir": "backend"
+      },
+      "dockerfile": {
+        "path": "docker/Dockerfile.backend"
+      },
+      "env": {
+        "DATABASE_URL": {
+          "from": {
+            "service": "database",
+            "attr": "DATABASE_URL"
+          }
+        }
+      }
+    },
+    {
+      "name": "frontend",
+      "github": {
+        "repo": "Div0011/LeadGen",
+        "branch": "main",
+        "rootDir": "frontend"
+      },
+      "dockerfile": {
+        "path": "docker/Dockerfile.frontend"
+      },
+      "env": {
+        "NEXT_PUBLIC_API_URL": {
+          "from": {
+            "service": "backend",
+            "attr": "URL"
+          }
+        }
+      }
+    }
+  ]
+}

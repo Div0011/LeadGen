@@ -1,138 +1,61 @@
+version: '3.8'
+
 services:
+  # PostgreSQL Database
   db:
     image: postgres:16-alpine
-    container_name: leadgen_db
     restart: unless-stopped
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
       POSTGRES_DB: leadgen
-    ports:
-      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    networks:
-      - leadgen_network
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
       timeout: 5s
       retries: 5
-      start_period: 10s
 
+  # Redis for background tasks
   redis:
     image: redis:7-alpine
-    container_name: leadgen_redis
     restart: unless-stopped
-    ports:
-      - "6379:6379"
     volumes:
       - redis_data:/data
-    networks:
-      - leadgen_network
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 5s
 
+  # Backend API
   backend:
     build:
-      context: .
-      dockerfile: docker/Dockerfile.backend
-    container_name: leadgen_backend
+      context: ./backend
+      dockerfile: ../docker/Dockerfile.backend
     restart: unless-stopped
     env_file:
-      - backend/.env
+      - ./backend/.env
     environment:
-      DATABASE_URL: postgresql+asyncpg://postgres:postgres@db:5432/leadgen
+      DATABASE_URL: postgresql+asyncpg://postgres:${DB_PASSWORD:-postgres}@db:5432/leadgen
       REDIS_URL: redis://redis:6379/0
     ports:
       - "8000:8000"
-    volumes:
-      - ./data:/app/data
-      - ./backend/config:/app/config
     depends_on:
       db:
         condition: service_healthy
       redis:
-        condition: service_healthy
-    networks:
-      - leadgen_network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 15s
+        condition: service_started
 
-  celery_worker:
-    build:
-      context: .
-      dockerfile: docker/Dockerfile.backend
-    container_name: leadgen_celery_worker
-    restart: unless-stopped
-    command: celery -A app.tasks.celery_app worker --loglevel=info --concurrency=4
-    env_file:
-      - backend/.env
-    environment:
-      DATABASE_URL: postgresql+asyncpg://postgres:postgres@db:5432/leadgen
-      REDIS_URL: redis://redis:6379/0
-    volumes:
-      - ./data:/app/data
-      - ./backend/config:/app/config
-    depends_on:
-      db:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-      backend:
-        condition: service_healthy
-    networks:
-      - leadgen_network
-
-  celery_beat:
-    build:
-      context: .
-      dockerfile: docker/Dockerfile.backend
-    container_name: leadgen_celery_beat
-    restart: unless-stopped
-    command: celery -A app.tasks.celery_app beat --loglevel=info
-    env_file:
-      - backend/.env
-    environment:
-      DATABASE_URL: postgresql+asyncpg://postgres:postgres@db:5432/leadgen
-      REDIS_URL: redis://redis:6379/0
-    volumes:
-      - ./data:/app/data
-    depends_on:
-      db:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    networks:
-      - leadgen_network
-
+  # Frontend Next.js
   frontend:
     build:
-      context: .
-      dockerfile: docker/Dockerfile.frontend
-    container_name: leadgen_frontend
+      context: ./frontend
+      dockerfile: ../docker/Dockerfile.frontend
     restart: unless-stopped
     environment:
-      NEXT_PUBLIC_API_URL: http://localhost:8000
+      NEXT_PUBLIC_API_URL: ${API_URL:-http://localhost:8000}
     ports:
       - "3000:3000"
     depends_on:
       - backend
-    networks:
-      - leadgen_network
 
 volumes:
   postgres_data:
   redis_data:
-
-networks:
-  leadgen_network:
-    driver: bridge
