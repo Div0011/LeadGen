@@ -4,6 +4,7 @@ from app.core.config import get_settings
 from app.core.database import init_db
 from app.api import leads, campaigns, pipeline, templates
 from app.api import auth, campaign, analytics, settings as settings_router
+from app.api import tracking
 
 app_settings = get_settings()
 
@@ -34,6 +35,7 @@ app.include_router(pipeline.router, prefix="/api")
 app.include_router(templates.router, prefix="/api")
 app.include_router(analytics.router, prefix="/api")
 app.include_router(settings_router.router, prefix="/api")
+app.include_router(tracking.router, prefix="/api")
 
 
 @app.on_event("startup")
@@ -54,6 +56,7 @@ async def health_check() -> dict:
 from sqlalchemy import text
 from app.core.database import engine
 
+
 @app.get("/api/system/status")
 async def system_status():
     db_status = "connected"
@@ -62,11 +65,10 @@ async def system_status():
             await conn.execute(text("SELECT 1"))
     except Exception as e:
         db_status = f"error: {str(e)}"
-        
+
     return {
         "backend": "online",
         "api": "connected",
         "database": db_status,
-        "version": app_settings.APP_VERSION
+        "version": app_settings.APP_VERSION,
     }
-

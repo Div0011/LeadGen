@@ -20,6 +20,7 @@ class EmailOutreach:
         user_smtp_settings: Optional[Dict] = None,
     ) -> None:
         self.settings = settings or Settings()
+        self.base_url = getattr(self.settings, "FRONTEND_URL", "http://localhost:3000")
 
         # Use user-specific SMTP settings if provided
         if user_smtp_settings:
@@ -126,6 +127,8 @@ class EmailOutreach:
         company_name: str,
         contact_person: Optional[str] = None,
         pdf_attachment_path: Optional[str] = None,
+        lead_id: Optional[str] = None,
+        brochure_url: Optional[str] = None,
     ) -> bool:
         personalized = self.personalize_template(
             subject_template,
@@ -133,9 +136,64 @@ class EmailOutreach:
             company_name,
             contact_person,
         )
+
+        # Create HTML body with tracking pixel and brochure link
+        html_body = self._create_html_body(
+            personalized["body"], lead_id, brochure_url, company_name
+        )
+
         return await self.send_email(
             to_email=to_email,
             subject=personalized["subject"],
             body=personalized["body"],
+            html_body=html_body,
             pdf_attachment_path=pdf_attachment_path,
         )
+
+    def _create_html_body(
+        self,
+        plain_body: str,
+        lead_id: Optional[str],
+        brochure_url: Optional[str],
+        company_name: str,
+    ) -> str:
+        # Convert plain text to HTML
+        html_body = plain_body.replace("\n", "<br>")
+
+        # Add tracking pixel
+        tracking_pixel = ""
+        if lead_id:
+            tracking_url = f"{self.base_url}/api/tracking/email/{lead_id}"
+            tracking_pixel = f'<img src="{tracking_url}" width="1" height="1" style="display:none;" alt="" />'
+
+        # Add brochure link if provided
+        brochure_link = ""
+        if brochure_url and lead_id:
+            tracked_brochure_url = (
+                f"{self.base_url}/api/tracking/brochure/{lead_id}?url={brochure_url}"
+            )
+            brochure_link = f'''
+            <div style="margin-top: 20px; padding: 15px; background: #f5f0e8; border-radius: 5px;">
+                <p style="margin: 0 0 10px 0; color: #3D2E1E; font-size: 14px;">
+                    <strong>Learn more about {company_name}</strong>
+                </p>
+                <a href="{tracked_brochure_url}" style="color: #8B4A2F; text-decoration: underline;">
+                    Click here to view our brochure
+                </a>
+            </div>
+            '''
+
+        # Combine all elements
+        full_html = f"""
+        <html>
+        <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #3D2E1E;">
+            <div style="max-width: 600px; margin: 0 auto;">
+                {html_body}
+                {brochure_link}
+                {tracking_pixel}
+            </div>
+        </body>
+        </html>
+        """
+
+        return full_html

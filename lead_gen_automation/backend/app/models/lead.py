@@ -1,7 +1,7 @@
 import enum
 from datetime import datetime, timezone
 
-from sqlalchemy import Column, String, Text, DateTime, Enum, Integer
+from sqlalchemy import Column, String, Text, DateTime, Enum, Integer, Boolean
 
 try:
     from sqlalchemy.dialects.postgresql import UUID
@@ -44,6 +44,17 @@ class Lead(Base):
     notes = Column(Text, nullable=True)
     brochure_sent = Column(String(10), default="false", nullable=True)
     date_brochure_sent = Column(DateTime(timezone=True), nullable=True)
+
+    # Email tracking fields
+    email_opened = Column(Boolean, default=False, nullable=False)
+    email_opened_at = Column(DateTime(timezone=True), nullable=True)
+    brochure_clicked = Column(Boolean, default=False, nullable=False)
+    brochure_clicked_at = Column(DateTime(timezone=True), nullable=True)
+    follow_up_sent = Column(Boolean, default=False, nullable=False)
+    follow_up_count = Column(Integer, default=0, nullable=False)
+    follow_up_scheduled_at = Column(DateTime(timezone=True), nullable=True)
+    last_follow_up_sent_at = Column(DateTime(timezone=True), nullable=True)
+
     created_at = Column(
         DateTime(timezone=True),
         server_default=func.now(),
