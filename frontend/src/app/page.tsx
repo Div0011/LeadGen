@@ -3,6 +3,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 
+// Updated: 2026-04-10
 export default function Home() {
   const [pActiveNode, setPActiveNode] = useState(1);
   const revealsRef = useRef<HTMLDivElement>(null);
