@@ -182,12 +182,17 @@ class PipelineOrchestrator:
             if lead.status != LeadStatus.validated:
                 continue
 
+            # Get brochure URL from template if available
+            brochure_url = getattr(template, "brochure_url", None) if template else None
+
             success = await self.outreach.send_campaign_email(
                 to_email=lead.email,
                 subject_template=template.subject,
                 body_template=template.body,
                 company_name=lead.business_name,
                 contact_person=lead.contact_person,
+                lead_id=lead.id,
+                brochure_url=brochure_url,
             )
 
             if success:
@@ -199,7 +204,7 @@ class PipelineOrchestrator:
 
             self.progress["emails_sent"] = sent_count
 
-        await self.db.commit()
+        await db.commit()
         logger.info(f"Sent {sent_count} emails")
         return sent_count
 

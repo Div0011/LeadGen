@@ -257,7 +257,7 @@ def process_pending_brochures(self) -> Dict[str, any]:
                         outreach.send_email(
                             to_email=lead.email,
                             subject=f"Company Brochure for {lead.business_name}",
-                            body=f"Dear {lead.contact_person or 'Contact'},\\n\\nPlease find attached our company brochure.\\n\\nBest regards",
+                            body=f"Dear {lead.contact_person or 'Contact'},\n\nPlease find attached our company brochure.\n\nBest regards",
                             pdf_attachment_path=brochure_path,
                         )
                     )
@@ -280,4 +280,89 @@ def process_pending_brochures(self) -> Dict[str, any]:
         "status": "completed",
         "sent": result["sent"],
         "failed": result["failed"],
+    }
+
+
+@celery_app.task(bind=True, name="tasks.process_follow_ups")
+def process_follow_ups(self) -> Dict[str, any]:
+    """Process pending follow-up emails for leads that haven't opened initial emails"""
+    logger.info("Processing pending follow-up emails")
+
+    import asyncio
+    from sqlalchemy import and_
+
+    async def send_follow_ups():
+        async with AsyncSessionLocal() as db:
+            now = datetime.now(timezone.utc)
+            result = await db.execute(
+                select(Lead)
+                .where(
+                    and_(
+                        Lead.status == LeadStatus.sent,
+                        Lead.email_opened == False,
+                        Lead.follow_up_count < 3,
+                        Lead.follow_up_scheduled_at <= now,
+                    )
+                )
+                .limit(20)
+            )
+            leads = result.scalars().all()
+
+            if not leads:
+                logger.info("No leads pending follow-up")
+                return {"sent": 0, "scheduled": 0}
+
+            outreach = EmailOutreach(settings)
+            sent = 0
+
+            follow_up_subjects = [
+                "Following up on my previous email",
+                "Just checking in",
+                "Would love to connect",
+            ]
+
+            for lead in leads:
+                try:
+                    subject = follow_up_subjects[
+                        min(lead.follow_up_count, len(follow_up_subjects) - 1)
+                    ]
+                    body = f"""Hi {lead.contact_person or "there"},
+
+I wanted to follow up on my previous email regarding {lead.business_name}. 
+
+I understand you might be busy, but I'd love to discuss how we could help your business grow.
+
+Would you be available for a quick call this week?
+
+Best regards"""
+
+                    success = outreach.send_campaign_email(
+                        to_email=lead.email,
+                        subject_template=subject,
+                        body_template=body,
+                        company_name=lead.business_name,
+                        contact_person=lead.contact_person,
+                    )
+
+                    if success:
+                        lead.follow_up_sent = True
+                        lead.follow_up_count += 1
+                        lead.last_follow_up_sent_at = datetime.now(timezone.utc)
+                        lead.follow_up_scheduled_at = None
+                        sent += 1
+                        logger.info(
+                            f"Follow-up sent to {lead.email} (attempt {lead.follow_up_count})"
+                        )
+                except Exception as e:
+                    logger.error(f"Failed to send follow-up to {lead.email}: {e}")
+
+            await db.commit()
+            return {"sent": sent, "scheduled": len(leads)}
+
+    result = asyncio.run(send_follow_ups())
+    logger.info(f"Follow-up processing complete: {result}")
+    return {
+        "status": "completed",
+        "sent": result["sent"],
+        "scheduled": result["scheduled"],
     }

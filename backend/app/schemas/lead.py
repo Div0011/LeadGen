@@ -51,6 +51,14 @@ class LeadResponse(BaseModel):
     notes: Optional[str]
     brochure_sent: Optional[str] = "false"
     date_brochure_sent: Optional[datetime] = None
+    email_opened: bool = False
+    email_opened_at: Optional[datetime] = None
+    brochure_clicked: bool = False
+    brochure_clicked_at: Optional[datetime] = None
+    follow_up_sent: bool = False
+    follow_up_count: int = 0
+    follow_up_scheduled_at: Optional[datetime] = None
+    last_follow_up_sent_at: Optional[datetime] = None
     created_at: datetime
     updated_at: datetime
 

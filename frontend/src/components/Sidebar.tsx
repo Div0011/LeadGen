@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { Menu, X, BarChart3, Target, Zap, Settings, LogOut } from 'lucide-react';
+import { Menu, X, BarChart3, Target, Zap, Settings, LogOut, Mail } from 'lucide-react';
 import GlassCard from './GlassCard';
 
 interface SidebarProps {
@@ -19,6 +19,7 @@ const Sidebar: React.FC<SidebarProps> = ({ authenticated = true }) => {
     { label: 'Dashboard', href: '/dashboard', icon: BarChart3 },
     { label: 'Leads', href: '/leads', icon: Target },
     { label: 'Campaigns', href: '/campaigns', icon: Zap },
+    { label: 'Email Tracking', href: '/tracking', icon: Mail },
   ];
 
   return (

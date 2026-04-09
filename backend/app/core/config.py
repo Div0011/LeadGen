@@ -37,13 +37,20 @@ class Settings:
     DUCKDUCKGO_MAX_RESULTS: int = 20
     REQUEST_TIMEOUT: int = 30
 
-    CORS_ORIGINS: List[str] = ["http://localhost:3000", "http://localhost:8000"]
+    CORS_ORIGINS: List[str] = [
+        "http://localhost:3000",
+        "http://localhost:8000",
+        "https://*.railway.app",
+        "https://*.vercel.app",
+    ]
 
     AGENCY_NAME: str = "My Agency"
     AGENCY_EMAIL: str = ""
 
     GOOGLE_SHEETS_CREDENTIALS_PATH: str = "config/credentials.json"
     GOOGLE_SHEETS_SPREADSHEET_ID: str = ""
+
+    FRONTEND_URL: str = "http://localhost:3000"
 
     def __init__(self):
         self.APP_NAME = os.getenv("APP_NAME", self.APP_NAME)
@@ -69,6 +76,7 @@ class Settings:
         self.TARGET_LOCATION = os.getenv("TARGET_LOCATION", self.TARGET_LOCATION)
         self.AGENCY_NAME = os.getenv("AGENCY_NAME", self.AGENCY_NAME)
         self.AGENCY_EMAIL = os.getenv("AGENCY_EMAIL", self.AGENCY_EMAIL)
+        self.FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000")
 
 
 _settings: Optional[Settings] = None

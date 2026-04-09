@@ -1,7 +1,9 @@
 // API Service for LeadGenius Frontend
 import axios, { AxiosError, AxiosInstance, AxiosResponse } from 'axios';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 
+                     process.env.REACT_APP_API_URL || 
+                     'http://localhost:8000/api';
 
 // Create axios instance with default configuration
 const apiClient: AxiosInstance = axios.create({
@@ -134,6 +136,22 @@ export const settingsApi = {
   getGoogleSheetsConfig: () => apiClient.get('/settings/google-sheets'),
 
   updateGoogleSheetsConfig: (data: any) => apiClient.put('/settings/google-sheets', data),
+};
+
+// Tracking APIs
+export const trackingApi = {
+  getStats: () => apiClient.get('/tracking/leads/tracking-stats'),
+  
+  getPendingFollowups: (hours?: number) => apiClient.get('/tracking/leads/pending-followup', { 
+    params: hours ? { hours } : {} 
+  }),
+  
+  sendFollowup: (leadId: string) => apiClient.post(`/tracking/leads/${leadId}/send-followup`),
+  
+  scheduleFollowups: (campaignId: string, hoursAfter?: number) => 
+    apiClient.post(`/tracking/campaigns/${campaignId}/schedule-followups`, {}, {
+      params: hoursAfter ? { hours: hoursAfter } : {}
+    }),
 };
 
 export default apiClient;
