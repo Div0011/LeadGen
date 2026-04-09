@@ -1,8 +1,0 @@
-{
-  "name": "leadgen",
-  "version": 1,
-  "database": {
-    "plan": "free",
-    "name": "leadgen_db"
-  }
-}
