@@ -4,12 +4,5 @@
   "database": {
     "plan": "free",
     "name": "leadgen_db"
-  },
-  "build": {
-    "builder": "DOCKER",
-    "dockerfile": {
-      "context": ".",
-      "dockerfile": "docker/Dockerfile.backend"
-    }
   }
 }
