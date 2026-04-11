@@ -5,10 +5,6 @@
     "plan": "free",
     "name": "leadgen_db"
   },
-  "build": {
-    "builder": "DOCKERFILE",
-    "dockerfile": "docker/Dockerfile.backend"
-  },
   "services": [
     {
       "name": "backend",
@@ -16,8 +12,10 @@
         "repo": "Div0011/LeadGen",
         "branch": "main"
       },
-      "sourceDir": "backend",
-      "dockerfile": "docker/Dockerfile.backend",
+      "rootDir": "backend",
+      "dockerfilePath": "docker/Dockerfile.backend",
+      "buildCommand": "pip install --no-cache-dir asyncpg && pip install --no-cache-dir -r requirements.txt",
+      "startCommand": "python -m uvicorn app.main:app --host 0.0.0.0 --port $PORT",
       "env": {
         "DATABASE_URL": {
           "from": {
