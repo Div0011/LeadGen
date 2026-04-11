@@ -16,9 +16,9 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 echo -e "${GREEN}✓ Starting Backend...${NC}"
 
-# Start backend in background
+# Start backend in background using python -m
 if [ -d "backend" ]; then
-    (cd backend && uvicorn app.main:app --host 0.0.0.0 --port 8000 2>&1) &
+    (cd backend && python -m uvicorn app.main:app --host 0.0.0.0 --port 8000 2>&1) &
     BACKEND_PID=$!
     echo -e "${GREEN}✓ Backend started (PID: $BACKEND_PID)${NC}"
 else
@@ -31,7 +31,7 @@ echo -e "${GREEN}✓ Starting Frontend...${NC}"
 
 # Start frontend in background
 if [ -d "frontend" ]; then
-    (cd frontend && npm run dev 2>&1) &
+    (cd frontend && npx next dev 2>&1) &
     FRONTEND_PID=$!
     echo -e "${GREEN}✓ Frontend started (PID: $FRONTEND_PID)${NC}"
 else
