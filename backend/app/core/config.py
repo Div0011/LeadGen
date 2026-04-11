@@ -57,16 +57,22 @@ class Settings:
         self.APP_VERSION = os.getenv("APP_VERSION", self.APP_VERSION)
         self.DEBUG = os.getenv("DEBUG", "false").lower() == "true"
         db_url = os.getenv("DATABASE_URL", self.DATABASE_URL)
-        valid_prefixes = (
-            "postgresql://",
-            "sqlite://",
-            "postgresql+psycopg2://",
-            "postgresql+asyncpg://",
-        )
-        if db_url and db_url.startswith("postgres://"):
-            db_url = "postgresql+asyncpg://" + db_url[11:]
-        elif db_url and not db_url.startswith(valid_prefixes):
-            db_url = "postgresql+asyncpg://" + db_url
+        if db_url:
+            # Force asyncpg for all PostgreSQL connections
+            if db_url.startswith("postgresql://"):
+                db_url = "postgresql+asyncpg://" + db_url[12:]
+            elif db_url.startswith("postgres://"):
+                db_url = "postgresql+asyncpg://" + db_url[11:]
+            elif db_url.startswith("postgresql+psycopg2://"):
+                db_url = db_url.replace(
+                    "postgresql+psycopg2://", "postgresql+asyncpg://"
+                )
+            elif "psycopg2" in db_url:
+                db_url = db_url.replace("psycopg2", "asyncpg")
+            elif not db_url.startswith(
+                "postgresql+asyncpg://"
+            ) and not db_url.startswith("sqlite://"):
+                db_url = "postgresql+asyncpg://" + db_url
         self.DATABASE_URL = db_url
         self.REDIS_URL = os.getenv("REDIS_URL", self.REDIS_URL)
         self.CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL", self.CELERY_BROKER_URL)

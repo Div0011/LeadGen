@@ -6,19 +6,18 @@
     "name": "leadgen_db"
   },
   "build": {
-    "builder": "DOCKERFILE"
+    "builder": "DOCKERFILE",
+    "dockerfile": "docker/Dockerfile.backend"
   },
   "services": [
     {
       "name": "backend",
       "github": {
         "repo": "Div0011/LeadGen",
-        "branch": "main",
-        "rootDir": "backend"
+        "branch": "main"
       },
-      "dockerfile": {
-        "path": "docker/Dockerfile.backend"
-      },
+      "sourceDir": "backend",
+      "dockerfile": "docker/Dockerfile.backend",
       "env": {
         "DATABASE_URL": {
           "from": {
