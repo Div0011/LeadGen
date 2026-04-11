@@ -4,6 +4,6 @@
   "installCommand": "npm install",
   "framework": "nextjs",
   "env": {
-    "NEXT_PUBLIC_API_URL": "https://leadgen-production.up.railway.app"
+    "NEXT_PUBLIC_API_URL": "https://leadgen-production-77e0.up.railway.app"
   }
 }
