@@ -14,17 +14,11 @@ echo ""
 # Get the directory where this script is located
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-# Check if we're in the right directory
-if [ ! -d "lead_gen_automation" ]; then
-    echo -e "${YELLOW}Running from: $SCRIPT_DIR${NC}"
-    cd lead_gen_automation || { echo "Failed to cd to lead_gen_automation"; exit 1; }
-fi
-
 echo -e "${GREEN}✓ Starting Backend...${NC}"
 
 # Start backend in background
 if [ -d "backend" ]; then
-    (cd backend && source venv/bin/activate && uvicorn app.main:app --reload --port 8000 2>&1) &
+    (cd backend && uvicorn app.main:app --host 0.0.0.0 --port 8000 2>&1) &
     BACKEND_PID=$!
     echo -e "${GREEN}✓ Backend started (PID: $BACKEND_PID)${NC}"
 else
