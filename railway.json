@@ -5,6 +5,9 @@
     "plan": "free",
     "name": "leadgen_db"
   },
+  "build": {
+    "builder": "DOCKERFILE"
+  },
   "services": [
     {
       "name": "backend",
