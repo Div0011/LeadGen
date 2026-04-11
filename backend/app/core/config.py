@@ -57,6 +57,7 @@ class Settings:
         self.APP_VERSION = os.getenv("APP_VERSION", self.APP_VERSION)
         self.DEBUG = os.getenv("DEBUG", "false").lower() == "true"
         db_url = os.getenv("DATABASE_URL", self.DATABASE_URL)
+        print(f"[DEBUG] Raw DATABASE_URL: {db_url}")
         if db_url:
             # Force asyncpg for all PostgreSQL connections
             if db_url.startswith("postgresql://"):
