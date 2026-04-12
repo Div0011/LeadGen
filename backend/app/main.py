@@ -48,6 +48,11 @@ async def root():
     return {"name": "LeadGen Pro API", "version": "1.0.0", "status": "running"}
 
 
+@app.get("/api")
+async def api_root():
+    return {"message": "LeadGen API is running"}
+
+
 @app.get("/health")
 async def health_check() -> dict:
     return {"status": "healthy", "version": app_settings.APP_VERSION}
