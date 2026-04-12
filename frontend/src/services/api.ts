@@ -1,9 +1,10 @@
 // API Service for LeadGenius Frontend
 import axios, { AxiosError, AxiosInstance, AxiosResponse } from 'axios';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 
-                     process.env.REACT_APP_API_URL || 
-                     'http://localhost:8000/api';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ? 
+                      process.env.NEXT_PUBLIC_API_URL + '/api' : 
+                      process.env.REACT_APP_API_URL || 
+                      'http://localhost:8000/api';
 
 // Create axios instance with default configuration
 const apiClient: AxiosInstance = axios.create({
