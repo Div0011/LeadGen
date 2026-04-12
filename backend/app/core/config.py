@@ -62,7 +62,7 @@ class Settings:
 
         if db_url and not db_url.startswith("sqlite"):
             if db_url.startswith("postgresql://"):
-                db_url = "postgresql+asyncpg://" + db_url[12:]
+                db_url = "postgresql+asyncpg://" + db_url[13:]
             elif db_url.startswith("postgres://"):
                 db_url = "postgresql+asyncpg://" + db_url[11:]
 
