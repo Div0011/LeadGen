@@ -16,6 +16,7 @@ class User(Base):
     name = Column(String(255), nullable=True)
     company_name = Column(String(255), nullable=True)
     company_website = Column(String(500), nullable=True)
+    agency_url = Column(String(500), nullable=True)
     company_description = Column(String(500), nullable=True)
     agency_type = Column(String(100), nullable=True)
     services = Column(String(500), nullable=True)
