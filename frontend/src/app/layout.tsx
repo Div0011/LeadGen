@@ -6,6 +6,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import Navigation from '@/components/Navigation';
 import WatermarkBackground from '@/components/WatermarkBackground';
 import Footer from '@/components/Footer';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 
 const publicRoutes = ['/', '/login', '/register', '/onboarding'];
 const dashboardRoutes = ['/dashboard', '/leads', '/campaigns', '/settings', '/profile', '/guide'];
@@ -131,6 +132,7 @@ export default function RootLayout({
           {children}
         </main>
         <Footer />
+        <SpeedInsights />
       </body>
       </html>
     );
@@ -151,6 +153,7 @@ export default function RootLayout({
           {children}
         </main>
         <Footer />
+        <SpeedInsights />
       </body>
     </html>
   );
