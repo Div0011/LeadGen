@@ -64,10 +64,11 @@ export default function Navigation() {
     >
       <nav id="navbar" style={{
         position: 'absolute', top: 0, left: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '1.2rem 5vw', background: isHovered || !scrolled || (isMobile && isMenuOpen) ? 'rgba(245,240,232, 1)' : 'rgba(245,240,232, 0.6)',
+        padding: '1.2rem 5vw', background: isHovered || !scrolled || (isMobile && isMenuOpen) ? 'rgba(245,240,232, 1)' : 'rgba(245,240,232, 0)',
         backdropFilter: scrolled && !isHovered && !(isMobile && isMenuOpen) ? 'blur(12px)' : 'none',
         WebkitBackdropFilter: scrolled && !isHovered && !(isMobile && isMenuOpen) ? 'blur(12px)' : 'none',
-        borderBottom: scrolled ? '1px solid rgba(184,169,138,0.1)' : 'none', transition: 'all 0.3s ease',
+        borderBottom: scrolled && isHovered ? '1px solid rgba(184,169,138,0.1)' : 'none', 
+        transition: 'all 0.3s ease',
         width: '100%', height: '100%',
       }}>
         
@@ -75,39 +76,32 @@ export default function Navigation() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', flexShrink: 0 }}>
           <button 
             onClick={() => setIsMenuOpen(!isMenuOpen)} 
-            style={{ background: 'none', border: 'none', color: 'var(--espresso)', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+            style={{ 
+              background: 'none', 
+              border: 'none', 
+              color: 'var(--espresso)', 
+              cursor: 'pointer', 
+              display: isHovered || !scrolled ? 'flex' : 'none',
+              alignItems: 'center',
+              transition: 'opacity 0.3s ease'
+            }}
           >
             {isMenuOpen ? <X size={26} /> : <Menu size={26} />}
           </button>
           
           <Link href={isAuthenticated ? '/dashboard' : '/'} className="nav-logo" onClick={() => setIsMenuOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', position: 'relative' }}>
-            {/* Rotated logo watermark behind brand name */}
-            <div style={{ 
-              position: 'absolute', 
-              top: '50%', 
-              left: '50%', 
-              transform: 'translate(-50%, -50%) rotate(90deg)', 
-              opacity: 0.12, 
-              width: '100px', 
-              height: '100px', 
-              zIndex: -1, 
-              pointerEvents: 'none',
-              filter: 'grayscale(100%)'
-            }}>
-              <Image src="/logo.png" alt="" fill style={{ objectFit: 'contain' }} unoptimized />
-            </div>
-            {/* Main logo */}
-            <Image src="/logo.png" alt="LeadGenius Logo" width={36} height={36} style={{ objectFit: 'contain' }} unoptimized />
+            {/* Main logo - updated to icon.png */}
+            <Image src="/icon.png" alt="LeadGenius Logo" width={40} height={40} style={{ objectFit: 'contain', borderRadius: '8px' }} unoptimized />
             <span style={{ fontSize: '1.3rem', fontWeight: 600 }}>Lead<span style={{ color: 'var(--rust)' }}>Genius</span></span>
           </Link>
         </div>
 
-        {/* Laptop / Desktop Horizontal Flowing Links (Flow Left depending on burger state) */}
-        {!isMobile && (
+        {/* Center: Nav Links - only visible on hover or when not scrolled */}
+        {!isMobile && (isHovered || !scrolled) && (
           <div style={{
             display: 'flex', alignItems: 'center', gap: '2.5rem', overflow: 'hidden',
-            maxWidth: isMenuOpen ? '1000px' : '0px', opacity: isMenuOpen ? 1 : 0, transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
-            flex: 1, justifyContent: 'flex-start', paddingLeft: isMenuOpen ? '2rem' : '0', whiteSpace: 'nowrap'
+            flex: 1, justifyContent: 'center', whiteSpace: 'nowrap',
+            opacity: isHovered || !scrolled ? 1 : 0, transition: 'opacity 0.3s ease'
           }}>
             {navLinks.map((link) => (
               <Link key={link.href} href={link.href} className="nav-link" style={{ color: 'var(--espresso)', textDecoration: 'none', fontWeight: 500 }} onClick={() => setIsMenuOpen(false)}>
