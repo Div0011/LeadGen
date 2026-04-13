@@ -45,10 +45,9 @@ export default function RegisterPage() {
       await authApi.register({
         email: formData.email,
         password: formData.password,
-        first_name: formData.firstName,
-        last_name: formData.lastName,
+        name: `${formData.firstName} ${formData.lastName}`.trim(),
         company_name: formData.company,
-      });
+      } as any);
       const loginResponse = await authApi.login({ 
         email: formData.email, 
         password: formData.password 

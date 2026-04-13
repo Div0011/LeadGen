@@ -43,16 +43,15 @@ apiClient.interceptors.response.use(
 // Auth APIs
 export const authApi = {
   register: (data: {
-    first_name: string;
-    last_name: string;
-    company_name: string;
     email: string;
     password: string;
+    name?: string;
+    company_name?: string;
   }) => apiClient.post('/auth/register', { 
     email: data.email, 
     password: data.password, 
-    name: `${data.first_name} ${data.last_name}`.trim(), 
-    company_name: data.company_name 
+    name: data.name || '', 
+    company_name: data.company_name || '' 
   }),
 
   login: (data: { email: string; password: string }) =>
