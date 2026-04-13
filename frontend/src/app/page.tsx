@@ -79,7 +79,7 @@ export default function Home() {
     <>
 
       {/* Hero Section */}
-      <section className="hero" id="home">
+      <section className="hero glass-section" id="home">
         <div className="hero-bg"></div>
         <div className="hero-line"></div>
         <div className="hero-content">
@@ -155,7 +155,7 @@ export default function Home() {
       </div>
 
       {/* How It Works */}
-      <section className="how-it-works" id="how">
+      <section className="how-it-works glass-section" id="how">
         <div className="section-tag">The Process</div>
         <h2 className="section-title">
           Five steps from<br />
@@ -294,7 +294,7 @@ export default function Home() {
       </section>
 
       {/* Campaigns Section */}
-      <section className="campaigns-section" id="campaigns">
+      <section className="campaigns-section glass-section" id="campaigns">
         <div className="section-tag reveal">Campaigns</div>
         <h2 className="section-title reveal">
           All your <em>campaigns,</em>
@@ -361,7 +361,7 @@ export default function Home() {
       </section>
 
       {/* Automation Section */}
-      <section className="automation-section" id="automation">
+      <section className="automation-section glass-section" id="automation">
         <div className="auto-inner">
           <div className="auto-content">
             <div className="section-tag">Automation</div>

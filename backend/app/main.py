@@ -5,6 +5,7 @@ from app.core.database import init_db
 from app.api import leads, campaigns, pipeline, templates
 from app.api import auth, campaign, analytics, settings as settings_router
 from app.api import tracking
+from app.api import agency
 
 app_settings = get_settings()
 
@@ -36,6 +37,7 @@ app.include_router(templates.router, prefix="/api")
 app.include_router(analytics.router, prefix="/api")
 app.include_router(settings_router.router, prefix="/api")
 app.include_router(tracking.router, prefix="/api")
+app.include_router(agency.router, prefix="/api")
 
 
 @app.on_event("startup")

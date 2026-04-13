@@ -31,7 +31,22 @@ class Lead(Base):
     website = Column(String(500), nullable=True)
     contact_person = Column(String(255), nullable=True)
     email = Column(String(255), nullable=False, unique=True)
+    phone = Column(String(50), nullable=True)  # Phone number added
     linkedin = Column(String(500), nullable=True)
+
+    # Email tracking and verification
+    email_valid = Column(Boolean, default=None, nullable=True)  # Is email valid
+    email_validated_at = Column(
+        DateTime(timezone=True), nullable=True
+    )  # When validated
+    email_validation_source = Column(
+        String(50), nullable=True
+    )  # e.g., hunter, zerobounce
+    email_validation_status = Column(
+        String(50), nullable=True
+    )  # valid, invalid, unknown, accept_all
+
+    # Email action tracking
     status = Column(
         Enum(LeadStatus),
         default=LeadStatus.scraped,

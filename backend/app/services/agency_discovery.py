@@ -355,51 +355,69 @@ class AgencyLeadDiscovery:
 
     def _is_blocked_email(self, email: str) -> bool:
         """Check if email is a blocked/no-reply email"""
+        # First, validate basic email format
+        import re
+
+        email_pattern = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+        if not re.match(email_pattern, email):
+            return True
+
+        # Filter out file extensions in email
+        bad_extensions = [
+            ".png",
+            ".jpg",
+            ".jpeg",
+            ".gif",
+            ".svg",
+            ".webp",
+            ".pdf",
+            ".doc",
+            ".docx",
+            ".ico",
+            ".txt",
+        ]
+        email_lower = email.lower()
+        if any(email_lower.endswith(ext) for ext in bad_extensions):
+            return True
+
+        # Filter out numbers-only local parts
+        local_part = email_lower.split("@")[0] if "@" in email_lower else email_lower
+        if local_part.isdigit():
+            return True
+
+        # Only block really generic patterns (not business emails)
         blocked_patterns = [
             "noreply",
             "no-reply",
             "no.reply",
             "donotreply",
             "do.not.reply",
-            "support",
-            "help",
-            "info",
-            "contact",
-            "admin",
-            "sales",
-            "marketing",
-            "enquiry",
-            "office",
-            "reception",
-            "spam",
-            "bounce",
             "undelivered",
-            "mail",
-            "webmaster",
+            "bounce",
+            "mailer-daemon",
         ]
 
-        email_lower = email.lower()
-        local_part = email_lower.split("@")[0] if "@" in email_lower else email_lower
+        # Don't block business emails like info@, sales@, support@, admin@, contact@
 
-        # Block generic email prefixes
         for pattern in blocked_patterns:
             if pattern in local_part:
                 return True
 
         # Block certain domains
         blocked_domains = [
-            "gmail.com",
-            "yahoo.com",
+            "mailinator.com",
+            "throwaway.email",
+            "temp-mail.org",
+            "fakeinbox.com",
             "hotmail.com",
             "outlook.com",
             "rediffmail.com",
-            "mailinator.com",
             "tempmail.com",
         ]
 
         domain = email_lower.split("@")[1] if "@" in email_lower else ""
         if any(domain.endswith(d) for d in blocked_domains):
-            # Allow some common names with gmail
+            # Allow some common names with these domains
             if not any(
                 name in local_part
                 for name in ["info", "contact", "support", "hello", "team", "admin"]

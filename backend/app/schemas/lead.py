@@ -18,6 +18,7 @@ class LeadCreate(BaseModel):
     website: Optional[str] = Field(None, max_length=500)
     contact_person: Optional[str] = Field(None, max_length=255)
     email: EmailStr
+    phone: Optional[str] = Field(None, max_length=50)  # Phone number
     linkedin: Optional[str] = Field(None, max_length=500)
     source: Optional[str] = Field("manual", max_length=100)
     notes: Optional[str] = None
@@ -28,12 +29,16 @@ class LeadUpdate(BaseModel):
     website: Optional[str] = Field(None, max_length=500)
     contact_person: Optional[str] = Field(None, max_length=255)
     email: Optional[EmailStr] = None
+    phone: Optional[str] = Field(None, max_length=50)
     linkedin: Optional[str] = Field(None, max_length=500)
     status: Optional[LeadStatusEnum] = None
     date_sent: Optional[datetime] = None
     date_replied: Optional[datetime] = None
     reply_content: Optional[str] = None
     notes: Optional[str] = None
+    # Email validation fields
+    email_valid: Optional[bool] = None
+    email_validation_status: Optional[str] = None
 
 
 class LeadResponse(BaseModel):
@@ -42,8 +47,15 @@ class LeadResponse(BaseModel):
     website: Optional[str]
     contact_person: Optional[str]
     email: str
+    phone: Optional[str] = None  # Phone number
     linkedin: Optional[str]
     status: LeadStatusEnum
+    # Email validation
+    email_valid: Optional[bool] = None
+    email_validated_at: Optional[datetime] = None
+    email_validation_source: Optional[str] = None
+    email_validation_status: Optional[str] = None
+    # Email actions
     date_sent: Optional[datetime]
     date_replied: Optional[datetime]
     reply_content: Optional[str]

@@ -1,7 +1,11 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, UploadFile, File, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from pydantic import BaseModel
 from typing import Optional
+import shutil
+from pathlib import Path
+import smtplib
+from email.message import EmailMessage
 from app.core.database import get_db
 from app.models.user import User
 from app.api.auth import get_current_user
@@ -21,9 +25,11 @@ class SettingsUpdate(BaseModel):
     # New fields for frontend
     smtpEmail: Optional[str] = None
     smtpPassword: Optional[str] = None
+    smtp_password: Optional[str] = None  # For backend access
     brochureUrl: Optional[str] = None
     leadType: Optional[str] = None
     leadVolume: Optional[str] = None
+    reportFrequency: Optional[str] = None
     reportFrequency: Optional[str] = None
 
 
@@ -59,11 +65,36 @@ def store_user_smtp_settings(user: User, smtp_email: str, smtp_password: str) ->
     user.smtp_use_tls = True
 
 
+def validate_smtp_settings(smtp_email: str, smtp_password: str) -> tuple[bool, str]:
+    """Validate SMTP credentials by attempting to connect"""
+    if not smtp_email or not smtp_password:
+        return False, "Email and password are required"
+
+    try:
+        server = smtplib.SMTP("smtp.gmail.com", 587, timeout=10)
+        server.starttls()
+        server.login(smtp_email, smtp_password)
+        server.quit()
+        return True, "Valid"
+    except Exception as e:
+        error_msg = str(e)
+        if "535" in error_msg or "Authentication failed" in error_msg:
+            return False, "Invalid credentials or App Password"
+        elif "Could not connect" in error_msg:
+            return False, "Cannot connect to SMTP server"
+        else:
+            return False, f"Connection error: {error_msg}"
+
+
 @router.get("")
 async def get_settings(current_user: User = Depends(get_current_user)):
     name_parts = current_user.name.split(" ", 1) if current_user.name else ["", ""]
     first_name = name_parts[0] if len(name_parts) > 0 else ""
     last_name = name_parts[1] if len(name_parts) > 1 else ""
+
+    # Get target location from user model or use default
+    target_location = current_user.target_location or "India"
+
     return {
         "firstName": first_name,
         "lastName": last_name,
@@ -78,7 +109,9 @@ async def get_settings(current_user: User = Depends(get_current_user)):
         "leadVolume": str(current_user.max_leads_per_day)
         if current_user.max_leads_per_day
         else "100",
-        "reportFrequency": "weekly",  # Default placeholder
+        "targetLocation": target_location,
+        "reportFrequency": "weekly",
+        "settings_verified": current_user.settings_verified or False,
     }
 
 
@@ -88,6 +121,32 @@ async def update_settings(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
+    validation_errors = []
+
+    # Get password from either field (frontend uses smtpPassword)
+    smtp_password = settings.smtpPassword or settings.smtp_password or ""
+
+    # Validate required fields
+    if not settings.leadType:
+        validation_errors.append("Target Industry is required")
+    if not settings.leadVolume:
+        validation_errors.append("Lead Volume is required")
+
+    # Only validate SMTP if BOTH email and password are provided
+    if settings.smtpEmail and smtp_password:
+        is_valid, msg = validate_smtp_settings(settings.smtpEmail, smtp_password)
+        if not is_valid:
+            validation_errors.append(f"SMTP: {msg}")
+
+    # If there are validation errors, return them
+    if validation_errors:
+        return {
+            "success": False,
+            "message": "Validation failed",
+            "errors": validation_errors,
+        }
+
+    # All validations passed, save settings
     if settings.firstName or settings.lastName:
         current_user.name = (
             f"{settings.firstName or ''} {settings.lastName or ''}".strip()
@@ -97,13 +156,11 @@ async def update_settings(
 
     if settings.smtpEmail is not None:
         current_user.smtp_username = settings.smtpEmail
-    if settings.smtpPassword is not None:
-        current_user.smtp_password = settings.smtp_password
+    if smtp_password:
+        current_user.smtp_password = smtp_password
 
     if settings.leadType is not None:
-        current_user.target_industry = settings.leadType[
-            :100
-        ]  # Fit into varchar(100) and String(500)
+        current_user.target_industry = settings.leadType[:100]
         current_user.company_description = settings.leadType[:500]
 
     if settings.leadVolume is not None:
@@ -115,13 +172,51 @@ async def update_settings(
     if settings.brochureUrl is not None:
         current_user.brochure_filename = settings.brochureUrl
 
+    # Mark settings as verified
+    from datetime import datetime, timezone
+
+    current_user.settings_verified = True
+    current_user.settings_verified_at = datetime.now(timezone.utc)
+
     db.add(current_user)
     await db.commit()
     await db.refresh(current_user)
-    return {"message": "Settings updated successfully", "data": settings.dict()}
+
+    return {
+        "success": True,
+        "message": "Settings saved and verified successfully",
+        "verified": True,
+    }
 
 
 @router.get("/smtp-config")
 async def get_smtp_config(current_user: User = Depends(get_current_user)):
     """Get user's SMTP configuration"""
     return get_user_smtp_settings(current_user)
+
+
+@router.post("/upload-brochure")
+async def upload_brochure(
+    file: UploadFile = File(...),
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Upload company brochure (PDF)"""
+    if not file.filename.lower().endswith(".pdf"):
+        raise HTTPException(status_code=400, detail="Only PDF files are allowed")
+
+    # Create uploads directory
+    upload_dir = Path("data/brochures")
+    upload_dir.mkdir(parents=True, exist_ok=True)
+
+    # Save file
+    file_path = upload_dir / f"{current_user.id}_{file.filename}"
+    with file_path.open("wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+
+    # Update user's brochure info
+    current_user.brochure_filename = file.filename
+    current_user.brochure_path = str(file_path)
+    await db.commit()
+
+    return {"filename": file.filename, "path": str(file_path), "status": "uploaded"}

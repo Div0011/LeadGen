@@ -1,12 +1,12 @@
 import logging
 import os
+import smtplib
+import asyncio
 from typing import Optional, Dict
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email import encoders
-
-import aiosmtplib
 
 from app.core.config import Settings
 
@@ -27,17 +27,21 @@ class EmailOutreach:
             self.smtp_host = user_smtp_settings.get(
                 "smtp_host", self.settings.SMTP_HOST
             )
-            self.smtp_port = user_smtp_settings.get(
-                "smtp_port", self.settings.SMTP_PORT
+            smtp_port_val = user_smtp_settings.get("smtp_port", self.settings.SMTP_PORT)
+            smtp_port_int = int(smtp_port_val) if smtp_port_val else 587
+            # For port 465 (SMTPS), TLS is implicit, don't use STARTTLS
+            # For port 587 (submission), use STARTTLS
+            self.smtp_use_tls = (
+                user_smtp_settings.get("smtp_use_tls", self.settings.SMTP_USE_TLS)
+                if smtp_port_int != 465
+                else False
             )
+            self.smtp_port = smtp_port_int
             self.smtp_user = user_smtp_settings.get(
                 "smtp_user", self.settings.SMTP_USER
             )
             self.smtp_password = user_smtp_settings.get(
                 "smtp_password", self.settings.SMTP_PASSWORD
-            )
-            self.smtp_use_tls = user_smtp_settings.get(
-                "smtp_use_tls", self.settings.SMTP_USE_TLS
             )
             self.email_from = user_smtp_settings.get(
                 "email_from", self.settings.EMAIL_FROM
@@ -97,24 +101,33 @@ class EmailOutreach:
                 msg.attach(part)
 
         try:
-            smtp = aiosmtplib.SMTP(
-                hostname=self.smtp_host,
-                port=self.smtp_port,
-            )
-            await smtp.connect()
+            smtp_port_int = int(self.smtp_port) if self.smtp_port else 587
 
-            if self.smtp_use_tls:
-                await smtp.starttls()
+            logger.info(f"Connecting to SMTP {self.smtp_host}:{smtp_port_int}")
+
+            if smtp_port_int == 465:
+                # Port 465 uses implicit TLS (SMTPS)
+                context = smtplib.SMTP_SSL(self.smtp_host, smtp_port_int)
+                logger.info("Connected via SMTP_SSL (port 465)")
+            else:
+                # Port 587 uses STARTTLS
+                context = smtplib.SMTP(self.smtp_host, smtp_port_int)
+                context.ehlo()
+                context.starttls()
+                context.ehlo()
+                logger.info("Connected via STARTTLS (port 587)")
 
             if self.smtp_user and self.smtp_password:
-                await smtp.login(
-                    self.smtp_user,
-                    self.smtp_password,
-                )
-            await smtp.send_message(msg)
-            await smtp.quit()
+                context.login(self.smtp_user, self.smtp_password)
+                logger.info("SMTP logged in")
+
+            context.sendmail(msg["From"], msg["To"], msg.as_string())
+            context.quit()
             logger.info(f"Email sent to {to_email}: {subject}")
             return True
+        except smtplib.SMTPException as e:
+            logger.error(f"SMTP error sending to {to_email}: {e}")
+            return False
         except Exception as e:
             logger.error(f"Failed to send email to {to_email}: {e}")
             return False

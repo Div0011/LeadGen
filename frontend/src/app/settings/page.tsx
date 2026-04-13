@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Mail, Lock, Bell, Key, CreditCard, Save, AlertCircle, Target, UploadCloud } from 'lucide-react';
 import Button from '@/components/Button';
@@ -56,14 +56,53 @@ export default function SettingsPage() {
     }
   };
 
-  const handleSave = async () => {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleBrochureUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    if (!file.name.toLowerCase().endsWith('.pdf')) {
+      alert('Only PDF files are allowed');
+      return;
+    }
+
     try {
       setLoading(true);
-      await settingsApi.updateSettings(settings);
+      const response = await settingsApi.uploadBrochure(file);
+      setSettings(prev => ({ ...prev, brochureUrl: response.data.filename }));
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
     } catch (err) {
-      console.error('Failed to save settings');
+      console.error('Failed to upload brochure:', err);
+      alert('Failed to upload brochure');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSave = async () => {
+    try {
+      setLoading(true);
+      const response = await settingsApi.updateSettings(settings);
+      
+      if (response.data.success) {
+        setSaved(true);
+        setTimeout(() => {
+          setSaved(false);
+          router.push('/dashboard');
+        }, 1500);
+      } else {
+        alert(response.data.errors?.join('\n') || 'Please fill all required fields');
+      }
+    } catch (err: any) {
+      console.error('Failed to save settings', err);
+      const errors = err.response?.data?.errors;
+      if (errors) {
+        alert(errors.join('\n'));
+      } else {
+        alert('Failed to save settings');
+      }
     } finally {
       setLoading(false);
     }
@@ -159,7 +198,18 @@ export default function SettingsPage() {
               <div className="form-group">
                 <label className="form-label" htmlFor="brochureUrl">Company Brochure (PDF)</label>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                  <Button className="btn-ghost" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', border: '1px solid rgba(184,169,138,0.3)', padding: '0.5rem 1rem' }}>
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    accept=".pdf"
+                    onChange={handleBrochureUpload}
+                    style={{ display: 'none' }}
+                  />
+                  <Button 
+                    className="btn-ghost" 
+                    onClick={() => fileInputRef.current?.click()}
+                    style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', border: '1px solid rgba(184,169,138,0.3)', padding: '0.5rem 1rem' }}
+                  >
                     <UploadCloud size={16} /> Update Brochure
                   </Button>
                   <span style={{ fontSize: '0.8rem', color: 'var(--umber)' }}>Current: {settings.brochureUrl || 'None uploaded'}</span>
@@ -228,12 +278,38 @@ export default function SettingsPage() {
               <div className="form-group">
                 <label className="form-label" htmlFor="googleSheetsApiKey">Google Sheets API Key</label>
                 <input type="password" id="googleSheetsApiKey" name="googleSheetsApiKey" value={settings.googleSheetsApiKey} onChange={handleChange as any} placeholder="Paste your API key" className="form-input" />
-                <p style={{ fontSize: '0.75rem', color: 'var(--umber)', marginTop: '0.5rem' }}>Used to export leads directly to Google Sheets</p>
+                <div style={{ background: 'rgba(196,148,58,0.1)', padding: '1rem', borderRadius: '8px', marginTop: '1rem', display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
+                  <AlertCircle size={18} color="var(--rust)" style={{ flexShrink: 0, marginTop: '2px' }} />
+                  <div>
+                    <h4 style={{ color: 'var(--espresso)', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.25rem' }}>How to get Google Sheets API Key</h4>
+                    <p style={{ fontSize: '0.75rem', color: 'var(--umber)', lineHeight: 1.5 }}>
+                      1. Go to <a href="https://console.cloud.google.com/" target="_blank" rel="noopener noreferrer" style={{ color: '#8B4A2F', textDecoration: 'underline' }}>Google Cloud Console</a><br/>
+                      2. Create a new project or select existing<br/>
+                      3. Go to <strong>APIs & Services → Credentials</strong><br/>
+                      4. Click <strong>Create Credentials → API Key</strong><br/>
+                      5. Copy the key and paste here<br/>
+                      <em style={{ color: '#8B7355' }}>Note: Enable "Google Sheets API" in Library for full functionality</em>
+                    </p>
+                  </div>
+                </div>
               </div>
               <div className="form-group">
                 <label className="form-label" htmlFor="slackWebhook">Slack Webhook URL</label>
                 <input type="url" id="slackWebhook" name="slackWebhook" value={settings.slackWebhook} onChange={handleChange as any} placeholder="https://hooks.slack.com/..." className="form-input" />
-                <p style={{ fontSize: '0.75rem', color: 'var(--umber)', marginTop: '0.5rem' }}>Receive real-time notifications in Slack</p>
+                <div style={{ background: 'rgba(196,148,58,0.1)', padding: '1rem', borderRadius: '8px', marginTop: '1rem', display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
+                  <AlertCircle size={18} color="var(--rust)" style={{ flexShrink: 0, marginTop: '2px' }} />
+                  <div>
+                    <h4 style={{ color: 'var(--espresso)', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.25rem' }}>How to get Slack Webhook URL</h4>
+                    <p style={{ fontSize: '0.75rem', color: 'var(--umber)', lineHeight: 1.5 }}>
+                      1. Go to your Slack workspace <strong>Settings → Apps</strong><br/>
+                      2. Search for <strong>Incoming Webhooks</strong> and add it<br/>
+                      3. Click <strong>Add New Webhook to Workspace</strong><br/>
+                      4. Select the channel for notifications (e.g., #leads)<br/>
+                      5. Copy the webhook URL and paste here<br/>
+                      <em style={{ color: '#8B7355' }}>Leads notifications will be sent to this channel</em>
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
           )}

@@ -37,23 +37,22 @@ export default function CampaignsPage() {
       setLoading(true);
       try {
         const response = await campaignsApi.getAll();
-        setCampaigns(response.data.map((campaign: any) => ({
-          id: campaign.id,
-          name: campaign.name,
-          status: campaign.status || 'draft',
-          leads: campaign.leads_count || 0,
-          responses: campaign.responses_count || 0,
-          responseRate: ((campaign.responses_count || 0) / (campaign.leads_count || 1)) * 100,
-          createdAt: campaign.created_at || new Date().toISOString(),
-          description: campaign.description,
-        })));
+        if (response.data && response.data.length > 0) {
+          setCampaigns(response.data.map((campaign: any) => ({
+            id: campaign.id,
+            name: campaign.name,
+            status: campaign.status || 'draft',
+            leads: campaign.leads_count || 0,
+            responses: campaign.replies || 0,
+            responseRate: campaign.leads_count ? ((campaign.replies || 0) / campaign.leads_count) * 100 : 0,
+            createdAt: campaign.created_at || new Date().toISOString(),
+            description: campaign.target_industry,
+          })));
+        } else {
+          setCampaigns([]);
+        }
       } catch (err) {
-        setCampaigns([
-          { id: '1', name: 'Q1 2025 Tech Leads', status: 'active', leads: 324, responses: 54, responseRate: 16.7, createdAt: '2025-01-15', description: 'Target tech decision makers' },
-          { id: '2', name: 'SaaS Outreach', status: 'active', leads: 210, responses: 31, responseRate: 14.8, createdAt: '2025-01-10', description: 'Enterprise SaaS companies' },
-          { id: '3', name: 'Enterprise Push', status: 'paused', leads: 156, responses: 18, responseRate: 11.5, createdAt: '2025-01-05', description: 'Fortune 500 enterprises' },
-          { id: '4', name: 'Startup Blitz', status: 'draft', leads: 0, responses: 0, responseRate: 0, createdAt: '2025-01-20', description: 'Series A/B funded startups' },
-        ]);
+        setCampaigns([]);
       }
     } finally {
       setLoading(false);

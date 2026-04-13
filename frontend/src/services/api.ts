@@ -80,9 +80,7 @@ export const leadsApi = {
 
   delete: (id: string) => apiClient.delete(`/leads/${id}`),
 
-  bulkDelete: (ids: string[]) => apiClient.post('/leads/bulk-delete', { ids }),
-
-  export: () => apiClient.get('/leads/export', { responseType: 'blob' }),
+  send: (id: string) => apiClient.post(`/leads/${id}/send`),
 };
 
 // Campaigns APIs
@@ -100,6 +98,9 @@ export const campaignsApi = {
   launch: (id: string) => apiClient.post(`/campaigns/${id}/launch`),
 
   pause: (id: string) => apiClient.post(`/campaigns/${id}/pause`),
+
+  run: (params: { agency_type?: string; location?: string; max_leads?: number }) => 
+    apiClient.post('/campaign/run', {}, { params }),
 };
 
 // Pipeline APIs
@@ -137,6 +138,14 @@ export const settingsApi = {
   getGoogleSheetsConfig: () => apiClient.get('/settings/google-sheets'),
 
   updateGoogleSheetsConfig: (data: any) => apiClient.put('/settings/google-sheets', data),
+
+  uploadBrochure: (file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return apiClient.post('/settings/upload-brochure', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+  },
 };
 
 // Tracking APIs

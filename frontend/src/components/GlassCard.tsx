@@ -15,19 +15,18 @@ export const GlassCard = React.forwardRef<HTMLDivElement, GlassCardProps>(
   ({ children, className = '', intensity = 'light', hover = true, ...props }, ref) => {
     const baseStyles = 'rounded-lg overflow-hidden transition-all duration-300 backdrop-blur-xl border';
 
-    const intensities: Record<GlassCardIntensity, string> = {
-      light: 'bg-[rgba(245,240,232,0.7)] border-[rgba(184,169,138,0.3)]',
-      medium: 'bg-[rgba(237,229,208,0.5)] border-[rgba(184,169,138,0.25)]',
-      dark: 'bg-[rgba(0,0,0,0.3)] border-[rgba(184,169,138,0.1)]',
-      subtle: 'bg-[rgba(245,240,232,0.03)] border-[rgba(184,169,138,0.05)]',
+    const intensities: Record<GlassCardIntensity, React.CSSProperties> = {
+      light: { background: 'color-mix(in srgb, var(--ivory) 70%, transparent)', borderColor: 'color-mix(in srgb, var(--tan) 30%, transparent)' },
+      medium: { background: 'color-mix(in srgb, var(--parchment) 50%, transparent)', borderColor: 'color-mix(in srgb, var(--tan) 25%, transparent)' },
+      dark: { background: 'rgba(0,0,0,0.3)', borderColor: 'color-mix(in srgb, var(--tan) 10%, transparent)' },
+      subtle: { background: 'color-mix(in srgb, var(--ivory) 3%, transparent)', borderColor: 'color-mix(in srgb, var(--tan) 5%, transparent)' },
     };
-
-    const hoverClass = hover ? 'hover:border-[rgba(184,169,138,0.5)] hover:shadow-lg' : '';
 
     return (
       <div
         ref={ref}
-        className={`${baseStyles} ${intensities[intensity as GlassCardIntensity]} ${hoverClass} ${className}`}
+        className={`${baseStyles} ${hover ? 'hover:shadow-lg' : ''} ${className}`}
+        style={intensities[intensity as GlassCardIntensity]}
         {...props}
       >
         {children}

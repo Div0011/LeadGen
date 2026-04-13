@@ -54,9 +54,24 @@ class LeadCollector:
             text = soup.get_text()
             emails = re.findall(r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}", text)
             for email in emails:
+                email_lower = email.lower()
                 if not any(
-                    email.lower().startswith(prefix)
-                    for prefix in ["support@", "info@", "admin@", "noreply@", "sales@"]
+                    email_lower.startswith(prefix)
+                    for prefix in [
+                        "support@",
+                        "info@",
+                        "admin@",
+                        "noreply@",
+                        "sales@",
+                        "helpdesk@",
+                        "customer.service@",
+                        "customerservice@",
+                        "cs@",
+                        "contact@",
+                        "enquiries@",
+                        "hello@",
+                        "webmaster@",
+                    ]
                 ):
                     return email
             contact_page = self._find_contact_page(url, soup)

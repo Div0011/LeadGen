@@ -65,7 +65,7 @@ export default function OnboardingPage() {
   const progressPercentage = (currentStep / 5) * 100;
 
   return (
-    <div className="login-container">
+    <div className="login-container" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem', background: 'transparent' }}>
       {/* Dynamic Background */}
       <div className="blobs">
         <div className="blob"></div>
@@ -73,7 +73,7 @@ export default function OnboardingPage() {
         <div className="blob"></div>
       </div>
 
-      <div className="form-card reveal visible" style={{ maxWidth: '600px', animation: 'fadeUp 1s ease forwards' }}>
+      <div className="form-card glass-section reveal visible" style={{ width: '100%', maxWidth: '600px', animation: 'fadeUp 1s ease forwards' }}>
         <div className="form-header">
           <div className="brand" style={{ justifyContent: 'center', marginBottom: '1rem' }}>
             <div className="logo-mark"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div>

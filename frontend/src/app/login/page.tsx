@@ -47,15 +47,15 @@ export default function LoginPage() {
   return (
     <div style={{
       minHeight: '100vh',
-      background: 'var(--ivory)',
+      background: 'transparent',
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center',
-      padding: '4rem 2rem',
+      padding: '2rem',
       fontFamily: "'Jost', sans-serif"
     }}>
-      <div style={{ width: '100%', maxWidth: '600px', opacity: 0, animation: 'fadeUp .8s ease forwards' }}>
+      <div className="glass-section" style={{ width: '100%', maxWidth: '600px', opacity: 0, animation: 'fadeUp .8s ease forwards' }}>
         
         <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
           <h1 style={{

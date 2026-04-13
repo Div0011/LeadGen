@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
+import { Mail, LayoutDashboard, Users, Zap, Settings, ShieldAlert, FileText } from 'lucide-react';
 
 export default function Footer() {
   const pathname = usePathname();
@@ -57,27 +58,15 @@ export default function Footer() {
           position: 'relative',
           zIndex: 1
         }}>
-          {/* Logo with watermark effect */}
+          {/* Logo */}
           <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', textDecoration: 'none', position: 'relative' }}>
-            <div style={{ 
-              position: 'absolute', 
-              top: '50%', 
-              left: '50%', 
-              transform: 'translate(-50%, -50%) rotate(90deg)', 
-              opacity: 0.1, 
-              width: '80px', 
-              height: '80px', 
-              zIndex: -1 
-            }}>
-              <Image src="/logo.png" alt="" fill style={{ objectFit: 'contain' }} unoptimized />
-            </div>
-            <Image src="/logo.png" alt="LeadGenius Logo" width={32} height={32} style={{ objectFit: 'contain' }} unoptimized />
+            <Image src="/logo.svg" alt="LeadGenius Logo" width={32} height={32} style={{ objectFit: 'contain' }} unoptimized />
             <span style={{ fontSize: '1.3rem', fontWeight: 600, color: 'var(--parchment)' }}>Lead<span style={{ color: 'var(--rust)' }}>Genius</span></span>
           </Link>
 
           {/* CTA to login */}
           <div style={{ textAlign: 'center' }}>
-            <p style={{ fontSize: '0.85rem', color: 'rgba(217,205,180,0.6)', marginBottom: '1rem', maxWidth: '400px' }}>
+            <p style={{ fontSize: '0.85rem', color: 'color-mix(in srgb, var(--ivory) 60%, transparent)', marginBottom: '1rem', maxWidth: '400px' }}>
               Ready to automate your lead generation? Sign in to access all features.
             </p>
             <Link 
@@ -100,25 +89,25 @@ export default function Footer() {
 
           {/* Minimal links */}
           <div style={{ display: 'flex', gap: '2rem', marginTop: '1rem' }}>
-            <span style={{ fontSize: '0.75rem', color: 'rgba(184,169,138,0.4)', cursor: 'not-allowed' }}>Features</span>
-            <span style={{ fontSize: '0.75rem', color: 'rgba(184,169,138,0.4)', cursor: 'not-allowed' }}>Pricing</span>
-            <span style={{ fontSize: '0.75rem', color: 'rgba(184,169,138,0.4)', cursor: 'not-allowed' }}>About</span>
+            <span style={{ fontSize: '0.75rem', color: 'color-mix(in srgb, var(--ivory) 40%, transparent)', cursor: 'not-allowed' }}>Features</span>
+            <span style={{ fontSize: '0.75rem', color: 'color-mix(in srgb, var(--ivory) 40%, transparent)', cursor: 'not-allowed' }}>Pricing</span>
+            <span style={{ fontSize: '0.75rem', color: 'color-mix(in srgb, var(--ivory) 40%, transparent)', cursor: 'not-allowed' }}>About</span>
           </div>
 
           <div style={{
             width: '100%',
             paddingTop: '2rem',
-            borderTop: '1px solid rgba(184,169,138,0.1)',
+            borderTop: '1px solid color-mix(in srgb, var(--ivory) 10%, transparent)',
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
             flexWrap: 'wrap',
             gap: '1rem'
           }}>
-            <p style={{ margin: 0, fontSize: '0.7rem', color: 'rgba(184,169,138,0.3)' }}>&copy; 2026 LeadGenius. All rights reserved.</p>
+            <p style={{ margin: 0, fontSize: '0.7rem', color: 'color-mix(in srgb, var(--ivory) 30%, transparent)' }}>&copy; 2026 LeadGenius. All rights reserved.</p>
             <div style={{ display: 'flex', gap: '1.5rem' }}>
-              <span style={{ fontSize: '0.7rem', color: 'rgba(184,169,138,0.3)', cursor: 'not-allowed' }}>Privacy</span>
-              <span style={{ fontSize: '0.7rem', color: 'rgba(184,169,138,0.3)', cursor: 'not-allowed' }}>Terms</span>
+              <span style={{ fontSize: '0.7rem', color: 'color-mix(in srgb, var(--ivory) 30%, transparent)', cursor: 'not-allowed' }}>Privacy</span>
+              <span style={{ fontSize: '0.7rem', color: 'color-mix(in srgb, var(--ivory) 30%, transparent)', cursor: 'not-allowed' }}>Terms</span>
             </div>
           </div>
         </div>
@@ -157,43 +146,31 @@ export default function Footer() {
         }}>
           <div className="footer-brand">
             <Link href="/dashboard" style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', textDecoration: 'none', marginBottom: '1rem', position: 'relative' }}>
-              <div style={{ 
-                position: 'absolute', 
-                top: '50%', 
-                left: '50%', 
-                transform: 'translate(-50%, -50%) rotate(90deg)', 
-                opacity: 0.1, 
-                width: '70px', 
-                height: '70px', 
-                zIndex: -1 
-              }}>
-                <Image src="/logo.png" alt="" fill style={{ objectFit: 'contain' }} unoptimized />
-              </div>
-              <Image src="/logo.png" alt="LeadGenius Logo" width={32} height={32} style={{ objectFit: 'contain' }} unoptimized />
+              <Image src="/logo.svg" alt="LeadGenius Logo" width={32} height={32} style={{ objectFit: 'contain' }} unoptimized />
               <span style={{ fontSize: '1.3rem', fontWeight: 600, color: 'var(--parchment)' }}>Lead<span style={{ color: 'var(--rust)' }}>Genius</span></span>
             </Link>
-            <p style={{ fontSize: '0.85rem', color: 'rgba(217,205,180,0.5)', lineHeight: '1.6', maxWidth: '280px' }}>
+            <p style={{ fontSize: '0.85rem', color: 'color-mix(in srgb, var(--ivory) 50%, transparent)', lineHeight: '1.6', maxWidth: '280px' }}>
               Intelligent lead generation for modern agencies. Discover, validate, and convert prospects automatically.
             </p>
           </div>
 
-          <div className="footer-col" style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
-            <h4 style={{ color: 'rgba(217,205,180,0.4)', fontWeight: 600, marginBottom: '0.5rem', fontSize: '0.65rem', letterSpacing: '0.2em', textTransform: 'uppercase' }}>Management</h4>
-            <Link href="/dashboard" style={{ color: 'rgba(217,205,180,0.7)', textDecoration: 'none', fontSize: '0.9rem', transition: 'color 0.2s' }}>Dashboard</Link>
-            <Link href="/leads" style={{ color: 'rgba(217,205,180,0.7)', textDecoration: 'none', fontSize: '0.9rem', transition: 'color 0.2s' }}>Leads Directory</Link>
-            <Link href="/campaigns" style={{ color: 'rgba(217,205,180,0.7)', textDecoration: 'none', fontSize: '0.9rem', transition: 'color 0.2s' }}>Campaigns</Link>
-          </div>
+        <div className="footer-col" style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
+          <h4 style={{ color: 'color-mix(in srgb, var(--ivory) 40%, transparent)', fontWeight: 600, marginBottom: '0.5rem', fontSize: '0.65rem', letterSpacing: '0.2em', textTransform: 'uppercase' }}>Management</h4>
+          <Link href="/dashboard" style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'color-mix(in srgb, var(--ivory) 70%, transparent)', textDecoration: 'none', fontSize: '0.9rem', transition: 'color 0.2s' }}><LayoutDashboard size={14}/> Dashboard</Link>
+          <Link href="/leads" style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'color-mix(in srgb, var(--ivory) 70%, transparent)', textDecoration: 'none', fontSize: '0.9rem', transition: 'color 0.2s' }}><Users size={14}/> Leads Directory</Link>
+          <Link href="/campaigns" style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'color-mix(in srgb, var(--ivory) 70%, transparent)', textDecoration: 'none', fontSize: '0.9rem', transition: 'color 0.2s' }}><Zap size={14}/> Campaigns</Link>
+        </div>
+        
+        <div className="footer-col" style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
+          <h4 style={{ color: 'color-mix(in srgb, var(--ivory) 40%, transparent)', fontWeight: 600, marginBottom: '0.5rem', fontSize: '0.65rem', letterSpacing: '0.2em', textTransform: 'uppercase' }}>Account</h4>
+          <Link href="/settings" style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'color-mix(in srgb, var(--ivory) 70%, transparent)', textDecoration: 'none', fontSize: '0.9rem', transition: 'color 0.2s' }}><Settings size={14}/> Settings</Link>
+          <Link href="/guide" style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'color-mix(in srgb, var(--ivory) 70%, transparent)', textDecoration: 'none', fontSize: '0.9rem', transition: 'color 0.2s' }}><FileText size={14}/> Platform Guide</Link>
+        </div>
           
           <div className="footer-col" style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
-            <h4 style={{ color: 'rgba(217,205,180,0.4)', fontWeight: 600, marginBottom: '0.5rem', fontSize: '0.65rem', letterSpacing: '0.2em', textTransform: 'uppercase' }}>Account</h4>
-            <Link href="/settings" style={{ color: 'rgba(217,205,180,0.7)', textDecoration: 'none', fontSize: '0.9rem', transition: 'color 0.2s' }}>Settings</Link>
-            <Link href="/guide" style={{ color: 'rgba(217,205,180,0.7)', textDecoration: 'none', fontSize: '0.9rem', transition: 'color 0.2s' }}>Platform Guide</Link>
-          </div>
-          
-          <div className="footer-col" style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
-            <h4 style={{ color: 'rgba(217,205,180,0.4)', fontWeight: 600, marginBottom: '0.5rem', fontSize: '0.65rem', letterSpacing: '0.2em', textTransform: 'uppercase' }}>Support</h4>
-            <Link href="/guide" style={{ color: 'rgba(217,205,180,0.7)', textDecoration: 'none', fontSize: '0.9rem', transition: 'color 0.2s' }}>Help Center</Link>
-            <Link href="/settings" style={{ color: 'rgba(217,205,180,0.7)', textDecoration: 'none', fontSize: '0.9rem', transition: 'color 0.2s' }}>Contact Support</Link>
+            <h4 style={{ color: 'color-mix(in srgb, var(--ivory) 40%, transparent)', fontWeight: 600, marginBottom: '0.5rem', fontSize: '0.65rem', letterSpacing: '0.2em', textTransform: 'uppercase' }}>Support</h4>
+            <Link href="/guide" style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'color-mix(in srgb, var(--ivory) 70%, transparent)', textDecoration: 'none', fontSize: '0.9rem', transition: 'color 0.2s' }}><FileText size={14}/> Help Center</Link>
+            <Link href="/settings" style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'color-mix(in srgb, var(--ivory) 70%, transparent)', textDecoration: 'none', fontSize: '0.9rem', transition: 'color 0.2s' }}><Mail size={14}/> Contact Support</Link>
           </div>
         </div>
 
@@ -202,16 +179,16 @@ export default function Footer() {
           justifyContent: 'space-between',
           alignItems: 'center',
           paddingTop: '2rem',
-          borderTop: '1px solid rgba(184,169,138,0.1)',
+          borderTop: '1px solid color-mix(in srgb, var(--ivory) 10%, transparent)',
           flexWrap: 'wrap',
           gap: '1rem',
           position: 'relative',
           zIndex: 1
         }}>
-          <p style={{ margin: 0, fontSize: '0.7rem', color: 'rgba(184,169,138,0.3)' }}>&copy; 2026 LeadGenius. All rights reserved.</p>
+          <p style={{ margin: 0, fontSize: '0.7rem', color: 'color-mix(in srgb, var(--ivory) 30%, transparent)' }}>&copy; 2026 LeadGenius. All rights reserved.</p>
           <div style={{ display: 'flex', gap: '2rem' }}>
-            <a href="#" style={{ fontSize: '0.7rem', color: 'rgba(184,169,138,0.3)', textDecoration: 'none' }}>Privacy</a>
-            <a href="#" style={{ fontSize: '0.7rem', color: 'rgba(184,169,138,0.3)', textDecoration: 'none' }}>Terms</a>
+            <a href="#" style={{ fontSize: '0.7rem', color: 'color-mix(in srgb, var(--ivory) 30%, transparent)', textDecoration: 'none' }}>Privacy</a>
+            <a href="#" style={{ fontSize: '0.7rem', color: 'color-mix(in srgb, var(--ivory) 30%, transparent)', textDecoration: 'none' }}>Terms</a>
           </div>
         </div>
       </footer>
@@ -221,9 +198,9 @@ export default function Footer() {
   // Non-landing page, not authenticated - redirect to login style
   return (
     <footer style={{
-      background: 'rgba(245,240,232,0.8)',
+      background: 'color-mix(in srgb, var(--ivory) 80%, transparent)',
       backdropFilter: 'blur(10px)',
-      borderTop: '1px solid rgba(184,169,138,0.2)',
+      borderTop: '1px solid color-mix(in srgb, var(--tan) 20%, transparent)',
       padding: '4rem 5vw 2rem',
       marginTop: 'auto',
       width: '100%'
@@ -236,19 +213,7 @@ export default function Footer() {
       }}>
         <div className="footer-brand">
           <Link href="/" className="nav-logo" style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', textDecoration: 'none', marginBottom: '1rem', position: 'relative' }}>
-            <div style={{ 
-              position: 'absolute', 
-              top: '50%', 
-              left: '50%', 
-              transform: 'translate(-50%, -50%) rotate(90deg)', 
-              opacity: 0.08, 
-              width: '60px', 
-              height: '60px', 
-              zIndex: -1 
-            }}>
-              <Image src="/logo.png" alt="" fill style={{ objectFit: 'contain' }} unoptimized />
-            </div>
-            <Image src="/logo.png" alt="LeadGenius Logo" width={32} height={32} style={{ objectFit: 'contain' }} unoptimized />
+            <Image src="/logo.svg" alt="LeadGenius Logo" width={32} height={32} style={{ objectFit: 'contain' }} unoptimized />
             <span style={{ fontSize: '1.3rem', fontWeight: 600, color: 'var(--espresso)' }}>Lead<span style={{ color: 'var(--rust)' }}>Genius</span></span>
           </Link>
           <p style={{ fontSize: '0.85rem', color: 'var(--umber)', lineHeight: '1.6' }}>
@@ -258,13 +223,13 @@ export default function Footer() {
 
         <div className="footer-col" style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
           <h4 style={{ color: 'var(--espresso)', fontWeight: 600, marginBottom: '0.5rem' }}>Platform</h4>
-          <a href="#" onClick={(e) => handleProtectedAction(e, '/login')} style={{ color: 'var(--umber)', textDecoration: 'none', fontSize: '0.9rem' }}>Features (Login Required)</a>
-          <a href="#" onClick={(e) => handleProtectedAction(e, '/login')} style={{ color: 'var(--umber)', textDecoration: 'none', fontSize: '0.9rem' }}>Automations</a>
+          <a href="#" onClick={(e) => handleProtectedAction(e, '/login')} style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--umber)', textDecoration: 'none', fontSize: '0.9rem' }}><LayoutDashboard size={14}/> Features (Login Required)</a>
+          <a href="#" onClick={(e) => handleProtectedAction(e, '/login')} style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--umber)', textDecoration: 'none', fontSize: '0.9rem' }}><Zap size={14}/> Automations</a>
         </div>
         <div className="footer-col" style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
           <h4 style={{ color: 'var(--espresso)', fontWeight: 600, marginBottom: '0.5rem' }}>Company</h4>
-          <a href="#" onClick={(e) => handleProtectedAction(e, '/login')} style={{ color: 'var(--umber)', textDecoration: 'none', fontSize: '0.9rem' }}>About Us</a>
-          <a href="#" onClick={(e) => handleProtectedAction(e, '/login')} style={{ color: 'var(--umber)', textDecoration: 'none', fontSize: '0.9rem' }}>Sign In to access</a>
+          <a href="#" onClick={(e) => handleProtectedAction(e, '/login')} style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--umber)', textDecoration: 'none', fontSize: '0.9rem' }}><Users size={14}/> About Us</a>
+          <a href="#" onClick={(e) => handleProtectedAction(e, '/login')} style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--umber)', textDecoration: 'none', fontSize: '0.9rem' }}><ShieldAlert size={14}/> Sign In to access</a>
         </div>
       </div>
 
@@ -273,7 +238,7 @@ export default function Footer() {
         justifyContent: 'space-between',
         alignItems: 'center',
         paddingTop: '2rem',
-        borderTop: '1px solid rgba(184,169,138,0.2)',
+        borderTop: '1px solid color-mix(in srgb, var(--tan) 20%, transparent)',
         flexWrap: 'wrap',
         gap: '1rem'
       }}>

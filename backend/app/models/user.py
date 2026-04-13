@@ -33,9 +33,15 @@ class User(Base):
     brochure_filename = Column(String(255), nullable=True)
     brochure_path = Column(String(500), nullable=True)
 
-    # Lead Generation Limits
+    # Lead Generation Settings
+    target_industry = Column(String(100), nullable=True)
+    target_location = Column(String(100), nullable=True)
     max_leads_per_day = Column(Integer, default=50)
     max_total_leads = Column(Integer, default=1000)
+
+    # Settings verification status
+    settings_verified = Column(Boolean, default=False)
+    settings_verified_at = Column(DateTime, nullable=True)
 
     is_active = Column(Boolean, default=True)
     is_verified = Column(Boolean, default=False)
@@ -81,6 +87,7 @@ class UserLead(Base):
 
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     user_id = Column(String(36), nullable=False, index=True)
+    campaign_id = Column(String(36), nullable=True, index=True)
     business_name = Column(String(255), nullable=False)
     website = Column(String(500), nullable=True)
     email = Column(String(255), nullable=True)
@@ -90,9 +97,12 @@ class UserLead(Base):
     location = Column(String(100), nullable=True)
     is_redesign_needed = Column(Boolean, default=False)
     email_valid = Column(Boolean, default=False)
+    source = Column(String(50), default="manual")
     status = Column(String(20), default="new")
     delivered = Column(Boolean, default=False)
     delivered_at = Column(DateTime, nullable=True)
+    email_opened = Column(Boolean, default=False)
+    email_opened_at = Column(DateTime(timezone=True), nullable=True)
     created_at = Column(DateTime, server_default=func.now())
 
     def __repr__(self) -> str:

@@ -7,7 +7,7 @@ class Settings:
     APP_VERSION: str = "1.0.0"
     DEBUG: bool = False
 
-    DATABASE_URL: str = "postgresql+psycopg2://postgres:postgres@localhost:5432/leadgen"
+    DATABASE_URL: str = "sqlite+aiosqlite:///./leadgen.db"
     DATABASE_POOL_SIZE: int = 10
     DATABASE_MAX_OVERFLOW: int = 20
 

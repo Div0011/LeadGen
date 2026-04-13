@@ -23,8 +23,16 @@ async def track_email_open(
     db: AsyncSession = Depends(get_db),
 ):
     """Track when a recipient opens an email (1x1 pixel tracking)"""
-    result = await db.execute(select(Lead).where(Lead.id == lead_id))
+    # Check UserLead first (user-specific leads)
+    from app.models.user import UserLead
+
+    result = await db.execute(select(UserLead).where(UserLead.id == lead_id))
     lead = result.scalar_one_or_none()
+
+    if not lead:
+        # Fallback to Lead model
+        result = await db.execute(select(Lead).where(Lead.id == lead_id))
+        lead = result.scalar_one_or_none()
 
     if not lead:
         logger.warning(f"Lead not found for tracking: {lead_id}")

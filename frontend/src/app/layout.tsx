@@ -146,7 +146,7 @@ export default function RootLayout({
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="description" content="Your LeadGenius command center" />
       </head>
-      <body className="antialiased text-[#3D2E1E]" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: 'linear-gradient(to bottom, var(--ivory), var(--parchment))' }}>
+      <body className="antialiased" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: 'linear-gradient(to bottom, var(--ivory), var(--parchment))', color: 'var(--espresso)' }}>
         <WatermarkBackground />
         <Navigation />
         <main style={{ paddingTop: '80px', width: '100%', minHeight: '100vh', position: 'relative', zIndex: 1 }}>
