@@ -62,6 +62,43 @@ def upgrade() -> None:
         ),
     )
 
+    op.create_table(
+        "users",
+        sa.Column("id", sa.String(36), primary_key=True),
+        sa.Column("email", sa.String(255), nullable=False, unique=True),
+        sa.Column("password_hash", sa.String(255), nullable=False),
+        sa.Column("name", sa.String(255), nullable=True),
+        sa.Column("company_name", sa.String(255), nullable=True),
+        sa.Column("company_website", sa.String(500), nullable=True),
+        sa.Column("company_description", sa.String(500), nullable=True),
+        sa.Column("agency_type", sa.String(100), nullable=True),
+        sa.Column("services", sa.String(500), nullable=True),
+        sa.Column("target_industry", sa.String(100), nullable=True),
+        sa.Column("target_location", sa.String(100), nullable=True),
+        sa.Column("smtp_host", sa.String(100), nullable=False, server_default="smtp.gmail.com"),
+        sa.Column("smtp_port", sa.String(10), nullable=False, server_default="587"),
+        sa.Column("smtp_username", sa.String(255), nullable=True),
+        sa.Column("smtp_password", sa.String(255), nullable=True),
+        sa.Column("smtp_use_tls", sa.Boolean(), nullable=False, server_default="true"),
+        sa.Column("brochure_filename", sa.String(255), nullable=True),
+        sa.Column("brochure_path", sa.String(500), nullable=True),
+        sa.Column("brochure_data", sa.LargeBinary(), nullable=True),
+        sa.Column("max_leads_per_day", sa.Integer(), nullable=False, server_default="50"),
+        sa.Column("max_total_leads", sa.Integer(), nullable=False, server_default="1000"),
+        sa.Column("settings_verified", sa.Boolean(), nullable=False, server_default="false"),
+        sa.Column("settings_verified_at", sa.DateTime(timezone=True), nullable=True),
+        sa.Column("is_active", sa.Boolean(), nullable=False, server_default="true"),
+        sa.Column("is_verified", sa.Boolean(), nullable=False, server_default="false"),
+        sa.Column("verification_token", sa.String(64), nullable=True),
+        sa.Column("api_key", sa.String(64), nullable=True, unique=True),
+        sa.Column("lead_quota", sa.Integer(), nullable=False, server_default="100"),
+        sa.Column("leads_used", sa.Integer(), nullable=False, server_default="0"),
+        sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
+        sa.Column("updated_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
+        sa.Index("ix_users_email", "email"),
+        sa.Index("ix_users_api_key", "api_key"),
+    )
+
     lead_status_enum = postgresql.ENUM(
         "scraped",
         "validated",
@@ -136,3 +173,4 @@ def downgrade() -> None:
     lead_status_enum.drop(op.get_bind())
     op.drop_table("email_templates")
     op.drop_table("campaigns")
+    op.drop_table("users")
