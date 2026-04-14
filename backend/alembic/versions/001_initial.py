@@ -21,7 +21,7 @@ depends_on: Union[str, Sequence[str], None] = None
 def upgrade() -> None:
     # Check which tables already exist to make this migration idempotent
     inspector = sa.inspect(op.get_bind())
-    existing_tables = [t['name'] for t in inspector.get_tables()]
+    existing_tables = inspector.get_table_names()
     
     if 'campaigns' not in existing_tables:
         op.create_table(
@@ -182,7 +182,7 @@ def upgrade() -> None:
 def downgrade() -> None:
     # Drop tables if they exist (idempotent)
     inspector = sa.inspect(op.get_bind())
-    existing_tables = [t['name'] for t in inspector.get_tables()]
+    existing_tables = inspector.get_table_names()
     
     if 'tasks' in existing_tables:
         op.drop_table("tasks")
