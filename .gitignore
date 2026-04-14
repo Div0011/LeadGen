@@ -55,4 +55,4 @@ out/
 .env.*.local
 
 # Build
-*.log
+*.logbackend/.env
