@@ -46,8 +46,7 @@ def upgrade() -> None:
         if col_name not in leads_columns:
             op.add_column('leads', col_def)
     
-    # ===== Create user_leads Table =====
-    # Only create if it doesn't exist
+    # ===== Create user_leads Table or Add Missing Columns =====
     if 'user_leads' not in inspector.get_table_names():
         op.create_table(
             'user_leads',
@@ -71,9 +70,33 @@ def upgrade() -> None:
             sa.Column('email_opened_at', sa.DateTime(timezone=True), nullable=True),
             sa.Column('created_at', sa.DateTime(), server_default=sa.func.now(), nullable=False),
         )
+    else:
+        # Table exists, add missing columns if needed
+        user_leads_columns = [c['name'] for c in inspector.get_columns('user_leads')]
+        missing_user_leads_columns = [
+            ('campaign_id', sa.Column('campaign_id', sa.String(36), nullable=True, index=True)),
+            ('business_name', sa.Column('business_name', sa.String(255), nullable=True)),
+            ('website', sa.Column('website', sa.String(500), nullable=True)),
+            ('email', sa.Column('email', sa.String(255), nullable=True)),
+            ('phone', sa.Column('phone', sa.String(50), nullable=True)),
+            ('contact_name', sa.Column('contact_name', sa.String(255), nullable=True)),
+            ('industry', sa.Column('industry', sa.String(100), nullable=True)),
+            ('location', sa.Column('location', sa.String(100), nullable=True)),
+            ('is_redesign_needed', sa.Column('is_redesign_needed', sa.Boolean(), nullable=False, server_default="false")),
+            ('email_valid', sa.Column('email_valid', sa.Boolean(), nullable=False, server_default="false")),
+            ('source', sa.Column('source', sa.String(50), nullable=False, server_default="manual")),
+            ('status', sa.Column('status', sa.String(20), nullable=False, server_default="new")),
+            ('delivered', sa.Column('delivered', sa.Boolean(), nullable=False, server_default="false")),
+            ('delivered_at', sa.Column('delivered_at', sa.DateTime(), nullable=True)),
+            ('email_opened', sa.Column('email_opened', sa.Boolean(), nullable=False, server_default="false")),
+            ('email_opened_at', sa.Column('email_opened_at', sa.DateTime(timezone=True), nullable=True)),
+            ('created_at', sa.Column('created_at', sa.DateTime(), server_default=sa.func.now(), nullable=False)),
+        ]
+        for col_name, col_def in missing_user_leads_columns:
+            if col_name not in user_leads_columns:
+                op.add_column('user_leads', col_def)
     
-    # ===== Create campaign_runs Table =====
-    # Only create if it doesn't exist
+    # ===== Create campaign_runs Table or Add Missing Columns =====
     if 'campaign_runs' not in inspector.get_table_names():
         op.create_table(
             'campaign_runs',
@@ -88,6 +111,23 @@ def upgrade() -> None:
             sa.Column('created_at', sa.DateTime(), server_default=sa.func.now(), nullable=False),
             sa.Column('completed_at', sa.DateTime(), nullable=True),
         )
+    else:
+        # Table exists, add missing columns if needed
+        campaign_runs_columns = [c['name'] for c in inspector.get_columns('campaign_runs')]
+        missing_campaign_runs_columns = [
+            ('user_id', sa.Column('user_id', sa.String(36), nullable=True, index=True)),
+            ('agency_type', sa.Column('agency_type', sa.String(100), nullable=True)),
+            ('location', sa.Column('location', sa.String(100), nullable=True)),
+            ('leads_found', sa.Column('leads_found', sa.Integer(), nullable=False, server_default="0")),
+            ('leads_validated', sa.Column('leads_validated', sa.Integer(), nullable=False, server_default="0")),
+            ('leads_delivered', sa.Column('leads_delivered', sa.Integer(), nullable=False, server_default="0")),
+            ('status', sa.Column('status', sa.String(20), nullable=False, server_default="pending")),
+            ('created_at', sa.Column('created_at', sa.DateTime(), server_default=sa.func.now(), nullable=False)),
+            ('completed_at', sa.Column('completed_at', sa.DateTime(), nullable=True)),
+        ]
+        for col_name, col_def in missing_campaign_runs_columns:
+            if col_name not in campaign_runs_columns:
+                op.add_column('campaign_runs', col_def)
 
 
 def downgrade() -> None:
