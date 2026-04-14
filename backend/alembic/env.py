@@ -1,9 +1,14 @@
 import asyncio
 from logging.config import fileConfig
+import sys
+from pathlib import Path
 
 from sqlalchemy import pool
 from sqlalchemy.ext.asyncio import async_engine_from_config
 from alembic import context
+
+# Add parent directory to path so alembic can import app modules
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from app.core.database import Base
 from app.core.config import get_settings
