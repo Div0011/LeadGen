@@ -7,7 +7,7 @@ from alembic import context
 
 from app.core.database import Base
 from app.core.config import get_settings
-from app.models import Lead, Campaign, EmailTemplate, Task
+from app.models import Lead, Campaign, EmailTemplate, Task, User, UserLead, CampaignRun, AgencyProfile, TargetLead
 
 config = context.config
 

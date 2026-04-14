@@ -15,8 +15,7 @@
       "rootDir": "backend",
       "dockerfilePath": "docker/Dockerfile.backend",
       "buildCommand": "pip uninstall -y psycopg2-binary 2>/dev/null; pip install --no-cache-dir --force-reinstall asyncpg && pip install --no-cache-dir -r requirements.txt",
-      "preDeployCommand": "alembic upgrade head",
-      "startCommand": "python -m uvicorn app.main:app --host 0.0.0.0 --port 3000",
+      "startCommand": "alembic upgrade head && python -m uvicorn app.main:app --host 0.0.0.0 --port 3000",
       "env": {
         "DATABASE_URL": {
           "from": {
