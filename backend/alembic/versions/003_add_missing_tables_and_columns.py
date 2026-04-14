@@ -21,7 +21,7 @@ depends_on: Union[str, Sequence[str], None] = None
 def upgrade() -> None:
     # ===== Fix Leads Table - Add Missing Columns =====
     inspector = sa.inspect(op.get_bind())
-    leads_columns = [c.name for c in inspector.get_columns('leads')]
+    leads_columns = [c['name'] for c in inspector.get_columns('leads')]
     
     # Add missing columns to leads table
     missing_columns = [
@@ -100,7 +100,7 @@ def downgrade() -> None:
     
     # Drop columns from leads table
     inspector = sa.inspect(op.get_bind())
-    leads_columns = [c.name for c in inspector.get_columns('leads')]
+    leads_columns = [c['name'] for c in inspector.get_columns('leads')]
     
     columns_to_drop = [
         'phone', 'email_valid', 'email_validated_at', 'email_validation_source',
