@@ -21,7 +21,7 @@ depends_on: Union[str, Sequence[str], None] = None
 def upgrade() -> None:
     # Check if agency_profiles table exists
     inspector = sa.inspect(op.get_bind())
-    existing_tables = [t['name'] for t in inspector.get_tables()]
+    existing_tables = inspector.get_table_names()
     
     # Create agency_profiles table if it doesn't exist
     if 'agency_profiles' not in existing_tables:
@@ -73,7 +73,7 @@ def upgrade() -> None:
 def downgrade() -> None:
     # Drop target_leads table if it exists
     inspector = sa.inspect(op.get_bind())
-    existing_tables = [t['name'] for t in inspector.get_tables()]
+    existing_tables = inspector.get_table_names()
     
     if 'target_leads' in existing_tables:
         op.drop_table('target_leads')
