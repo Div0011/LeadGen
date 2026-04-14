@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Boolean, DateTime, Integer
+from sqlalchemy import Column, String, Boolean, DateTime, Integer, LargeBinary
 from sqlalchemy.sql import func
 import uuid
 import hashlib
@@ -32,10 +32,9 @@ class User(Base):
     # Brochure
     brochure_filename = Column(String(255), nullable=True)
     brochure_path = Column(String(500), nullable=True)
+    brochure_data = Column(LargeBinary, nullable=True)  # Store PDF in DB
 
     # Lead Generation Settings
-    target_industry = Column(String(100), nullable=True)
-    target_location = Column(String(100), nullable=True)
     max_leads_per_day = Column(Integer, default=50)
     max_total_leads = Column(Integer, default=1000)
 

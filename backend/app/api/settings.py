@@ -205,18 +205,14 @@ async def upload_brochure(
     if not file.filename.lower().endswith(".pdf"):
         raise HTTPException(status_code=400, detail="Only PDF files are allowed")
 
-    # Create uploads directory
-    upload_dir = Path("data/brochures")
-    upload_dir.mkdir(parents=True, exist_ok=True)
+    # Read file content into memory
+    content = await file.read()
+    if len(content) > 10 * 1024 * 1024:  # 10MB limit
+        raise HTTPException(status_code=400, detail="File too large (max 10MB)")
 
-    # Save file
-    file_path = upload_dir / f"{current_user.id}_{file.filename}"
-    with file_path.open("wb") as buffer:
-        shutil.copyfileobj(file.file, buffer)
-
-    # Update user's brochure info
+    # Store in database (for Vercel compatibility)
     current_user.brochure_filename = file.filename
-    current_user.brochure_path = str(file_path)
+    current_user.brochure_data = content
     await db.commit()
 
-    return {"filename": file.filename, "path": str(file_path), "status": "uploaded"}
+    return {"filename": file.filename, "status": "uploaded"}
