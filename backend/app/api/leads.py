@@ -258,6 +258,12 @@ Best regards,
 
         return {"success": True, "message": f"Email sent to {lead.email}"}
 
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Failed to send email: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to send email: {str(e)}")
+
 
 @router.post("/{lead_id}/follow-up")
 async def send_follow_up_email(
@@ -319,10 +325,10 @@ async def send_follow_up_email(
         contact_person_name = lead.contact_name or "there"
 
         subject_template = f"Following up - {sender_name}"
-        
+
         body_template = f"""Hi {contact_person_name},
 
-{sender_name} here from {current_user.company_name or 'our company'}.
+{sender_name} here from {current_user.company_name or "our company"}.
 
 Just wanted to follow up on my earlier email. I haven't heard back and completely understand you might be busy.
 
@@ -355,7 +361,9 @@ Best regards,
         raise
     except Exception as e:
         logger.error(f"Failed to send follow-up email: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Failed to send follow-up email: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Failed to send follow-up email: {str(e)}"
+        )
 
 
 @router.put("/{lead_id}")
