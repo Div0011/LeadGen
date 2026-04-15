@@ -21,6 +21,7 @@ interface Lead {
   created_at: string;
   campaign_id: string | null;
   email_opened?: boolean;
+  follow_up_sent?: boolean;
 }
 
 export default function LeadsPage() {
@@ -117,6 +118,19 @@ export default function LeadsPage() {
     } catch (err) {
       console.error('Failed to delete lead:', err);
       alert('Failed to delete lead');
+    }
+  };
+
+  const handleFollowUp = async (lead: Lead) => {
+    if (!confirm(`Send follow-up email to ${lead.email}?`)) return;
+
+    try {
+      await leadsApi.sendFollowup(lead.id);
+      await loadLeads();
+      alert(`Follow-up sent to ${lead.email}`);
+    } catch (err: any) {
+      console.error('Failed to send follow-up:', err);
+      alert(err.response?.data?.detail || 'Failed to send follow-up');
     }
   };
 
@@ -387,6 +401,17 @@ export default function LeadsPage() {
                           )}
                           {lead.status === 'sent' && (
                             <span style={{ fontSize: '0.7rem', color: 'var(--gold)', padding: '0.4rem 0.8rem' }}>SENT</span>
+                          )}
+                          {lead.status === 'sent' && !lead.follow_up_sent && (
+                            <button
+                              onClick={(e) => { e.stopPropagation(); handleFollowUp(lead); }}
+                              style={{ padding: '0.4rem 0.8rem', fontSize: '0.7rem', background: 'var(--gold)', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', letterSpacing: '0.1em' }}
+                            >
+                              FOLLOW UP
+                            </button>
+                          )}
+                          {lead.status === 'replied' && (
+                            <span style={{ fontSize: '0.7rem', color: 'forestgreen', padding: '0.4rem 0.8rem' }}>REPLIED</span>
                           )}
                           {lead.status !== 'sent' && (
                             <button

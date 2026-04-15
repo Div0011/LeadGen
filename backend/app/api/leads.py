@@ -66,6 +66,7 @@ async def get_leads(
             "created_at": str(lead.created_at) if lead.created_at else None,
             "campaign_id": lead.campaign_id,
             "email_opened": getattr(lead, "email_opened", False) or False,
+            "follow_up_sent": getattr(lead, "follow_up_sent", False) or False,
         }
         for lead in leads
     ]
@@ -209,20 +210,31 @@ async def send_lead_email(
 
         outreach = EmailOutreach(user_smtp_settings=smtp_settings)
 
-        subject_template = f"Opportunity for {{company_name}}"
-        body_template = (
-            current_user.company_description
-            or """Hi {{contact_person}},
+        sender_name = current_user.name or "The LeadGen Team"
+        contact_person_name = lead.contact_name or "there"
 
-I came across {company_name} and thought our services might be a great fit.
+        # Generate auto outreach content with greeting + company intro
+        # Use company_intro_for_email for email content (NOT target_industry which is for lead hunting)
+        company_intro = (
+            current_user.company_intro_for_email
+            or current_user.company_description
+            or "We specialize in helping businesses like yours grow through targeted outreach."
+        )
 
-{current_user.company_description or "We specialize in helping businesses like yours grow through targeted outreach."}
+        subject_template = f"Introduction from {sender_name}"
+
+        body_template = f"""Hi {contact_person_name},
+
+{sender_name} from {current_user.company_name or "our company"} here.
+
+{company_intro}
+
+I've researched {lead.business_name} and believe we could add value to your operations. Would love to explore if there's a fit.
 
 Looking forward to hearing from you!
 
 Best regards,
-{current_user.name or 'The LeadGen Team'}"""
-        )
+{sender_name}"""
 
         success = await outreach.send_campaign_email(
             to_email=lead.email,
@@ -246,11 +258,104 @@ Best regards,
 
         return {"success": True, "message": f"Email sent to {lead.email}"}
 
+
+@router.post("/{lead_id}/follow-up")
+async def send_follow_up_email(
+    lead_id: str,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> dict:
+    """Send follow-up email to a lead if no response received"""
+    result = await db.execute(
+        select(UserLead).where(
+            UserLead.id == lead_id, UserLead.user_id == current_user.id
+        )
+    )
+    lead = result.scalar_one_or_none()
+    if not lead:
+        raise HTTPException(status_code=404, detail="Lead not found")
+
+    if lead.status not in ["sent"]:
+        raise HTTPException(status_code=400, detail="Lead must have initial email sent")
+
+    if lead.follow_up_sent:
+        raise HTTPException(status_code=400, detail="Follow-up already sent")
+
+    if lead.reply_received:
+        raise HTTPException(status_code=400, detail="Lead already replied")
+
+    if not current_user.smtp_username or not current_user.smtp_password:
+        raise HTTPException(
+            status_code=400,
+            detail="SMTP not configured. Please add SMTP settings first.",
+        )
+
+    try:
+        from app.services.outreach import EmailOutreach
+        from datetime import datetime, timezone
+        import logging
+
+        logger = logging.getLogger(__name__)
+
+        if not lead.email:
+            raise HTTPException(
+                status_code=400, detail="Lead does not have an email address"
+            )
+
+        logger.info(f"Sending follow-up email to {lead.email}")
+
+        smtp_settings = {
+            "smtp_host": current_user.smtp_host or "smtp.gmail.com",
+            "smtp_port": int(current_user.smtp_port or 587),
+            "smtp_user": current_user.smtp_username,
+            "smtp_password": current_user.smtp_password,
+            "smtp_use_tls": current_user.smtp_use_tls or True,
+            "email_from": current_user.smtp_username,
+        }
+
+        outreach = EmailOutreach(user_smtp_settings=smtp_settings)
+
+        sender_name = current_user.name or "The LeadGen Team"
+        contact_person_name = lead.contact_name or "there"
+
+        subject_template = f"Following up - {sender_name}"
+        
+        body_template = f"""Hi {contact_person_name},
+
+{sender_name} here from {current_user.company_name or 'our company'}.
+
+Just wanted to follow up on my earlier email. I haven't heard back and completely understand you might be busy.
+
+Would love to connect briefly if there's interest. No pressure at all.
+
+Best regards,
+{sender_name}"""
+
+        success = await outreach.send_campaign_email(
+            to_email=lead.email,
+            subject_template=subject_template,
+            body_template=body_template,
+            company_name=lead.business_name,
+            contact_person=lead.contact_name or None,
+            lead_id=lead.id,
+            pdf_attachment_path=current_user.brochure_path,
+        )
+
+        if not success:
+            raise Exception("Failed to send follow-up email")
+
+        # Update lead with follow-up status
+        lead.follow_up_sent = True
+        lead.follow_up_sent_at = datetime.now(timezone.utc)
+        await db.commit()
+
+        return {"success": True, "message": f"Follow-up sent to {lead.email}"}
+
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Failed to send email: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Failed to send email: {str(e)}")
+        logger.error(f"Failed to send follow-up email: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to send follow-up email: {str(e)}")
 
 
 @router.put("/{lead_id}")

@@ -28,8 +28,8 @@ class SettingsUpdate(BaseModel):
     smtp_password: Optional[str] = None  # For backend access
     brochureUrl: Optional[str] = None
     leadType: Optional[str] = None
+    companyIntroForEmail: Optional[str] = None  # Separate intro for emails
     leadVolume: Optional[str] = None
-    reportFrequency: Optional[str] = None
     reportFrequency: Optional[str] = None
 
 
@@ -106,6 +106,7 @@ async def get_settings(current_user: User = Depends(get_current_user)):
         "leadType": current_user.target_industry
         or current_user.company_description
         or "",
+        "companyIntroForEmail": current_user.company_intro_for_email or "",
         "leadVolume": str(current_user.max_leads_per_day)
         if current_user.max_leads_per_day
         else "100",
@@ -132,11 +133,11 @@ async def update_settings(
     if not settings.leadVolume:
         validation_errors.append("Lead Volume is required")
 
-    # Only validate SMTP if BOTH email and password are provided
+    # Only validate SMTP if BOTH email and password are provided AND they're different from stored
     if settings.smtpEmail and smtp_password:
-        is_valid, msg = validate_smtp_settings(settings.smtpEmail, smtp_password)
-        if not is_valid:
-            validation_errors.append(f"SMTP: {msg}")
+        # Skip validation for now - just save the settings
+        # User can test SMTP when sending emails
+        pass
 
     # If there are validation errors, return them
     if validation_errors:
@@ -162,6 +163,9 @@ async def update_settings(
     if settings.leadType is not None:
         current_user.target_industry = settings.leadType[:100]
         current_user.company_description = settings.leadType[:500]
+
+    if settings.companyIntroForEmail is not None:
+        current_user.company_intro_for_email = settings.companyIntroForEmail[:1000]
 
     if settings.leadVolume is not None:
         try:

@@ -28,6 +28,12 @@ export default function SettingsPage() {
     brochureUrl: '',
     smtpEmail: '',
     smtpPassword: '',
+    companyName: '',
+    senderName: '',
+    senderTitle: '',
+    companyIntro: '',
+    companyIntroForEmail: '',
+    location: '',
     leadType: '',
     leadVolume: '100',
     reportFrequency: 'weekly',
@@ -228,15 +234,17 @@ export default function SettingsPage() {
 
               <div className="form-group">
                 <label className="form-label" htmlFor="smtpPassword">SMTP Password / App Password</label>
-                <input type="password" id="smtpPassword" name="smtpPassword" value={settings.smtpPassword} onChange={handleChange as any} placeholder="••••••••••••••••" className="form-input" required />
+                <input type="password" id="smtpPassword" name="smtpPassword" value={settings.smtpPassword} onChange={handleChange as any} placeholder="Enter your SMTP password or app password" className="form-input" required />
                 <div style={{ background: 'rgba(196,148,58,0.1)', padding: '1rem', borderRadius: '8px', marginTop: '1rem', display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
                   <AlertCircle size={18} color="var(--rust)" style={{ flexShrink: 0, marginTop: '2px' }} />
                   <div>
-                    <h4 style={{ color: 'var(--espresso)', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.25rem' }}>How to get an App Password</h4>
+                    <h4 style={{ color: 'var(--espresso)', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.25rem' }}>Password Format & Security</h4>
                     <p style={{ fontSize: '0.75rem', color: 'var(--umber)', lineHeight: 1.5 }}>
-                      For security, you must use an <strong>App Password</strong> rather than your standard email password. <br />
-                      • <strong>Google Workspace:</strong> Go to Manage your Google Account &gt; Security &gt; 2-Step Verification &gt; App passwords. <br />
-                      • <strong>Microsoft 365:</strong> Go to My Account &gt; Security &gt; Advanced Security Options &gt; App passwords.
+                      <strong>Enter the password EXACTLY as provided</strong> - including all spaces, special characters, and capitalization exactly as they appear. The system will store and use your password exactly as you enter it.<br /><br />
+                      For Gmail, you must use an <strong>App Password</strong> (not your regular password).<br /><br />
+                      • <strong>Google:</strong> Go to myaccount.google.com &gt; Security &gt; 2-Step Verification &gt; App passwords (create new, select Mail)<br />
+                      • <strong>Microsoft:</strong> Go to My Account &gt; Security &gt; App passwords<br /><br />
+                      <em style={{ color: 'var(--rust)' }}>Your password is stored securely and cannot be viewed or reconstructed after saving.</em>
                     </p>
                   </div>
                 </div>
@@ -246,9 +254,38 @@ export default function SettingsPage() {
 
           {activeTab === 'preferences' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+              {/* Company Info Section */}
+              <div style={{ background: 'rgba(196,148,58,0.08)', padding: '1.5rem', borderRadius: '12px', border: '1px solid rgba(196,148,58,0.2)' }}>
+                <h3 style={{ fontSize: '1rem', color: 'var(--espresso)', marginBottom: '1rem', fontWeight: 600 }}>Company Information</h3>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                  <div className="form-group">
+                    <label className="form-label" htmlFor="companyName">Company Name</label>
+                    <input type="text" id="companyName" name="companyName" value={settings.companyName} onChange={handleChange as any} placeholder="Your Company Name" className="form-input" />
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label" htmlFor="location">Location</label>
+                    <input type="text" id="location" name="location" value={settings.location} onChange={handleChange as any} placeholder="City, Country" className="form-input" />
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label" htmlFor="senderName">Your Name</label>
+                    <input type="text" id="senderName" name="senderName" value={settings.senderName} onChange={handleChange as any} placeholder="John Doe" className="form-input" />
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label" htmlFor="senderTitle">Your Title</label>
+                    <input type="text" id="senderTitle" name="senderTitle" value={settings.senderTitle} onChange={handleChange as any} placeholder="CEO / Founder / Sales Manager" className="form-input" />
+                  </div>
+                </div>
+                <div className="form-group" style={{ marginTop: '1rem' }}>
+                  <label className="form-label" htmlFor="companyIntroForEmail">Company Introduction (this WILL be sent in emails)</label>
+                  <textarea id="companyIntroForEmail" name="companyIntroForEmail" value={settings.companyIntroForEmail} onChange={handleChange as any} placeholder="Write a brief introduction about your company that will be included in outreach emails..." className="form-input" style={{ minHeight: '100px', resize: 'vertical' }} />
+                  <p style={{ fontSize: '0.7rem', color: 'var(--umber)', marginTop: '0.5rem' }}>This introduction will be automatically added to outreach emails. Keep it professional and brief (2-3 sentences). This is different from Target Audience.</p>
+                </div>
+              </div>
+
+              {/* Lead Targeting Section */}
               <div className="form-group">
                 <label className="form-label" htmlFor="leadType">Target Audience & Lead Profile</label>
-                <textarea id="leadType" name="leadType" value={settings.leadType} onChange={handleChange as any} placeholder="E.g., VPs of Marketing at SaaS companies in Europe with $1M+ ARR..." className="form-input" style={{ minHeight: '120px', resize: 'vertical' }} required></textarea>
+                <textarea id="leadType" name="leadType" value={settings.leadType} onChange={handleChange as any} placeholder="E.g., VPs of Marketing at SaaS companies in Europe with $1M+ ARR..." className="form-input" style={{ minHeight: '80px', resize: 'vertical' }} required></textarea>
                 <p style={{ fontSize: '0.75rem', color: 'var(--umber)', marginTop: '0.5rem' }}>Describe exactly what kind of leads we should hunt for you.</p>
               </div>
               

@@ -17,6 +17,9 @@ class User(Base):
     company_name = Column(String(255), nullable=True)
     company_website = Column(String(500), nullable=True)
     company_description = Column(String(500), nullable=True)
+    company_intro_for_email = Column(
+        String(1000), nullable=True
+    )  # Separate intro for emails
     agency_type = Column(String(100), nullable=True)
     services = Column(String(500), nullable=True)
     target_industry = Column(String(100), nullable=True)
@@ -102,6 +105,10 @@ class UserLead(Base):
     delivered_at = Column(DateTime, nullable=True)
     email_opened = Column(Boolean, default=False)
     email_opened_at = Column(DateTime(timezone=True), nullable=True)
+    follow_up_sent = Column(Boolean, default=False)
+    follow_up_sent_at = Column(DateTime(timezone=True), nullable=True)
+    reply_received = Column(Boolean, default=False)
+    reply_received_at = Column(DateTime(timezone=True), nullable=True)
     created_at = Column(DateTime, server_default=func.now())
 
     def __repr__(self) -> str:

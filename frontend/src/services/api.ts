@@ -80,6 +80,7 @@ export const leadsApi = {
   delete: (id: string) => apiClient.delete(`/leads/${id}`),
 
   send: (id: string) => apiClient.post(`/leads/${id}/send`),
+  sendFollowup: (id: string) => apiClient.post(`/leads/${id}/follow-up`),
 };
 
 // Campaigns APIs
