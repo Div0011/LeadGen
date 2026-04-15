@@ -105,10 +105,15 @@ async def update_campaign(
 async def delete_campaign(
     campaign_id: UUID,
     db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ) -> None:
-    result = await db.execute(select(Campaign).where(Campaign.id == campaign_id))
+    result = await db.execute(
+        select(CampaignRun).where(
+            CampaignRun.id == campaign_id, CampaignRun.user_id == current_user.id
+        )
+    )
     campaign = result.scalar_one_or_none()
     if not campaign:
         raise HTTPException(status_code=404, detail="Campaign not found")
     await db.delete(campaign)
-    await db.flush()
+    await db.commit()
