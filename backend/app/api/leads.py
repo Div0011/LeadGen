@@ -297,7 +297,7 @@ Best regards,
 
         # Update lead status and date
         lead.status = "sent"
-        lead.delivered_at = datetime.now(timezone.utc)
+        lead.delivered_at = datetime.now()
         await db.commit()
 
         return {"success": True, "message": f"Email sent to {lead.email}"}
