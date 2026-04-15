@@ -110,9 +110,12 @@ class AgencyLeadDiscovery:
     ) -> List[Dict]:
         """Search for businesses that NEED website services"""
         leads = []
+        
+        logger.info(f"Starting lead discovery - agency_type: {agency_type}, location: {location}, max_results: {max_results}")
 
         # First try need-based queries
         search_queries = self._build_need_based_queries(agency_type, location)
+        logger.info(f"Generated search queries: {search_queries}")
 
         # Add fallback queries from original AGENCY_TYPES
         agency_key = (
@@ -121,13 +124,17 @@ class AgencyLeadDiscovery:
         if agency_key in self.AGENCY_TYPES:
             for q in self.AGENCY_TYPES[agency_key][:3]:
                 search_queries.append(f"{q} {location}")
+            logger.info(f"Added fallback queries, total: {len(search_queries)}")
 
+        total_urls_found = 0
+        
         for query in search_queries:
-            logger.info(f"Searching: {query}")
+            logger.info(f"=== Processing query: {query} ===")
 
             # Try multiple search sources
             urls = self._search_google(query, max_results=max_results)
             logger.info(f"Found {len(urls)} URLs from search")
+            total_urls_found += len(urls)
 
             for url in urls[:max_results]:
                 try:
@@ -141,64 +148,73 @@ class AgencyLeadDiscovery:
                 except Exception as e:
                     logger.error(f"Error extracting {url}: {e}")
 
-        logger.info(f"Total leads found: {len(leads)}")
+        logger.info(f"=== SUMMARY: Total URLs: {total_urls_found}, Total leads with email: {len(leads)} ===")
         return leads
 
-    def _build_need_based_queries(self, agency_type: str, location: str) -> List[str]:
+def _build_need_based_queries(self, agency_type: str, location: str) -> List[str]:
         """Build queries that find businesses needing services, not just service providers"""
-        # Clean location - remove special chars and use just city/country
+        # Clean inputs
         base_location = ""
         if location:
-            # Take only the first part if location has multiple words
-            clean_location = location.split(",")[0].strip()
-            base_location = clean_location
-
-        # Different query patterns based on agency type
-        agency_lower = agency_type.lower().replace("+", " ").replace("-", " ")
-
-        if "redesign" in agency_lower:
-            return [
+            base_location = location.split(",")[0].strip()
+        
+        agency_clean = agency_type.lower().replace("+", " ").replace("-", " ").strip()
+        
+        # Build a diverse set of queries
+        queries = []
+        
+        if "redesign" in agency_clean or "rebuild" in agency_clean:
+            queries = [
                 f"business needs website redesign {base_location}",
                 f"old website needs update {base_location}",
-                f"looking for website redesign service {base_location}",
+                f"company looking for redesign {base_location}",
+                f"website redesign service {base_location}",
             ]
-        elif (
-            "development" in agency_lower
-            or "web" in agency_lower
-            or "saas" in agency_lower
-        ):
-            return [
+        elif "saas" in agency_clean or "development" in agency_clean:
+            queries = [
                 f"need web development company {base_location}",
                 f"looking for website developer {base_location}",
                 f"business needs new website {base_location}",
                 f"startup needs website {base_location}",
+                f"saas development company {base_location}",
             ]
-        elif "ecommerce" in agency_lower or "shop" in agency_lower:
-            return [
+        elif "ecommerce" in agency_clean or "shop" in agency_clean or "store" in agency_clean:
+            queries = [
                 f"need ecommerce website {base_location}",
                 f"want to sell online {base_location}",
                 f"online store development {base_location}",
             ]
-        elif "mobile" in agency_lower or "app" in agency_lower:
-            return [
+        elif "mobile" in agency_clean or "app" in agency_clean:
+            queries = [
                 f"need mobile app development {base_location}",
                 f"want to build app {base_location}",
             ]
         else:
-            # Default - find businesses needing services
-            return [
+            # Use keywords from the agency_type itself as fallback
+            keywords = agency_clean.split()[:3]
+            keyword_queries = []
+            for kw in keywords:
+                if len(kw) > 2:
+                    keyword_queries.append(f"{kw} company {base_location}")
+            
+            queries = [
                 f"need website services {base_location}",
-                f"looking for web agency {base_location}",
                 f"business needs website {base_location}",
+                f"looking for web development {base_location}",
             ]
+            queries.extend(keyword_queries[:3])
+        
+        return queries[:5]  # Limit to 5 queries
 
     def _search_google(self, query: str, max_results: int = 50) -> List[str]:
         """Search using DuckDuckGo HTML version"""
         urls = []
         try:
+            logger.info(f"Starting search for query: {query}")
             response = self.session.post(
                 "https://html.duckduckgo.com/html/", data={"q": query}, timeout=30
             )
+            logger.info(f"Search response status: {response.status_code}")
             soup = BeautifulSoup(response.text, "html.parser")
 
             for a in soup.find_all("a", class_="result__snippet"):
@@ -217,6 +233,8 @@ class AgencyLeadDiscovery:
                 href = a.get("href")
                 if href and href.startswith("http"):
                     urls.append(href)
+
+            logger.info(f"Found {len(urls)} URLs from search")
 
         except Exception as e:
             logger.error(f"Search error: {e}")
