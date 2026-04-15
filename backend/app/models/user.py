@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Boolean, DateTime, Integer, LargeBinary
+from sqlalchemy import Column, String, Boolean, DateTime, Integer, LargeBinary, Text
 from sqlalchemy.sql import func
 import uuid
 import hashlib
@@ -109,6 +109,7 @@ class UserLead(Base):
     follow_up_sent_at = Column(DateTime(timezone=True), nullable=True)
     reply_received = Column(Boolean, default=False)
     reply_received_at = Column(DateTime(timezone=True), nullable=True)
+    notes = Column(Text, nullable=True)
     created_at = Column(DateTime, server_default=func.now())
 
     def __repr__(self) -> str:
