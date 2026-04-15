@@ -176,7 +176,7 @@ async def update_settings(
     from datetime import datetime, timezone
 
     current_user.settings_verified = True
-    current_user.settings_verified_at = datetime.now(timezone.utc)
+    current_user.settings_verified_at = datetime.now()
 
     db.add(current_user)
     await db.commit()
