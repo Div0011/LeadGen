@@ -103,7 +103,7 @@ async def update_campaign(
 
 @router.delete("/{campaign_id}", status_code=204)
 async def delete_campaign(
-    campaign_id: UUID,
+    campaign_id: str,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ) -> None:
