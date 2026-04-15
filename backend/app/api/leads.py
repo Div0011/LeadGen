@@ -54,6 +54,7 @@ async def get_leads(
             "id": lead.id,
             "business_name": lead.business_name,
             "website": lead.website,
+            "google_maps_url": getattr(lead, "google_maps_url", None),
             "email": lead.email,
             "phone": lead.phone,
             "contact_person": lead.contact_name,
@@ -67,6 +68,13 @@ async def get_leads(
             "campaign_id": lead.campaign_id,
             "email_opened": getattr(lead, "email_opened", False) or False,
             "follow_up_sent": getattr(lead, "follow_up_sent", False) or False,
+            # New fields per spec
+            "website_status": getattr(lead, "website_status", None),
+            "evidence": getattr(lead, "evidence", None),
+            "recommended_service_type": getattr(lead, "recommended_service_type", None),
+            "lead_priority_score": getattr(lead, "lead_priority_score", None),
+            "primary_contact_method": getattr(lead, "primary_contact_method", None),
+            "outreach_angle": getattr(lead, "outreach_angle", None),
         }
         for lead in leads
     ]

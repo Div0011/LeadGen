@@ -110,6 +110,20 @@ class UserLead(Base):
     reply_received = Column(Boolean, default=False)
     reply_received_at = Column(DateTime(timezone=True), nullable=True)
     notes = Column(Text, nullable=True)
+
+    # New fields per spec
+    website_status = Column(String(20), nullable=True)  # old, slow, none, modern
+    evidence = Column(Text, nullable=True)
+    recommended_service_type = Column(
+        String(50), nullable=True
+    )  # website_rebuild, website_modernization_performance, saas_development
+    lead_priority_score = Column(Integer, nullable=True)
+    primary_contact_method = Column(
+        String(20), nullable=True
+    )  # email, phone, contact_form
+    outreach_angle = Column(Text, nullable=True)
+    google_maps_url = Column(String(500), nullable=True)
+
     created_at = Column(DateTime, server_default=func.now())
 
     def __repr__(self) -> str:

@@ -14,6 +14,7 @@ interface Lead {
   email: string;
   phone: string | null;
   website: string;
+  google_maps_url?: string | null;
   status: string;
   email_valid: boolean | null;
   email_validation_status: string | null;
@@ -22,6 +23,13 @@ interface Lead {
   campaign_id: string | null;
   email_opened?: boolean;
   follow_up_sent?: boolean;
+  // New fields per spec
+  website_status?: string;
+  evidence?: string;
+  recommended_service_type?: string;
+  lead_priority_score?: number;
+  primary_contact_method?: string;
+  outreach_angle?: string;
 }
 
 export default function LeadsPage() {
@@ -70,6 +78,7 @@ export default function LeadsPage() {
           email: lead.email,
           phone: lead.phone || null,
           website: lead.website || '',
+          google_maps_url: lead.google_maps_url || null,
           status: lead.status || 'scraped',
           email_valid: lead.email_valid ?? null,
           email_validation_status: lead.email_validation_status || null,
@@ -77,6 +86,14 @@ export default function LeadsPage() {
           created_at: lead.created_at,
           campaign_id: lead.campaign_id || null,
           email_opened: lead.email_opened || false,
+          follow_up_sent: lead.follow_up_sent || false,
+          // New fields per spec
+          website_status: lead.website_status || null,
+          evidence: lead.evidence || null,
+          recommended_service_type: lead.recommended_service_type || null,
+          lead_priority_score: lead.lead_priority_score || null,
+          primary_contact_method: lead.primary_contact_method || null,
+          outreach_angle: lead.outreach_angle || null,
         })));
       } catch (err) {
         console.error('Failed to load leads:', err);
