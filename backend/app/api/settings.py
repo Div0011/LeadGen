@@ -32,6 +32,11 @@ class SettingsUpdate(BaseModel):
     leadVolume: Optional[str] = None
     reportFrequency: Optional[str] = None
 
+    # Mailjet API Settings
+    mailjetApiKey: Optional[str] = None
+    mailjetApiSecret: Optional[str] = None
+    mailjetEnabled: Optional[bool] = None
+
 
 def get_user_smtp_settings(user: User) -> dict:
     """Get SMTP settings from user record or fall back to global config"""
@@ -113,6 +118,9 @@ async def get_settings(current_user: User = Depends(get_current_user)):
         "targetLocation": target_location,
         "reportFrequency": "weekly",
         "settings_verified": current_user.settings_verified or False,
+        "mailjetApiKey": current_user.mailjet_api_key or "",
+        "mailjetApiSecret": current_user.mailjet_api_secret or "",
+        "mailjetEnabled": current_user.mailjet_enabled or False,
     }
 
 
@@ -175,6 +183,14 @@ async def update_settings(
 
     if settings.brochureUrl is not None:
         current_user.brochure_filename = settings.brochureUrl
+
+    # Mailjet API Settings
+    if settings.mailjetApiKey is not None:
+        current_user.mailjet_api_key = settings.mailjetApiKey
+    if settings.mailjetApiSecret is not None:
+        current_user.mailjet_api_secret = settings.mailjetApiSecret
+    if settings.mailjetEnabled is not None:
+        current_user.mailjet_enabled = settings.mailjetEnabled
 
     # Mark settings as verified
     from datetime import datetime, timezone

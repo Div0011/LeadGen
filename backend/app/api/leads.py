@@ -207,16 +207,52 @@ async def send_lead_email(
 
         logger.info(f"Sending email to {lead.email} via {current_user.smtp_username}")
 
-        smtp_settings = {
-            "smtp_host": current_user.smtp_host or "smtp.gmail.com",
-            "smtp_port": int(current_user.smtp_port or 587),
-            "smtp_user": current_user.smtp_username,
-            "smtp_password": current_user.smtp_password,
-            "smtp_use_tls": current_user.smtp_use_tls or True,
-            "email_from": current_user.smtp_username,
-        }
+        # Check for Mailjet - prioritize env vars (global), then user settings
+        import os
 
-        outreach = EmailOutreach(user_smtp_settings=smtp_settings)
+        mailjet_enabled = os.getenv("MAILJET_ENABLED", "").lower() == "true"
+        mailjet_api_key = os.getenv("MAILJET_API_KEY", "")
+        mailjet_api_secret = os.getenv("MAILJET_API_SECRET", "")
+
+        logger.info(
+            f"Mailjet env check - enabled: {mailjet_enabled}, has key: {bool(mailjet_api_key)}, has secret: {bool(mailjet_api_secret)}"
+        )
+
+        # Also check user-specific Mailjet settings
+        user_mailjet = (
+            bool(current_user.mailjet_enabled)
+            and current_user.mailjet_api_key
+            and current_user.mailjet_api_secret
+        )
+
+        use_mailjet = (
+            mailjet_enabled and mailjet_api_key and mailjet_api_secret
+        ) or user_mailjet
+
+        logger.info(f"Will use Mailjet: {use_mailjet}")
+
+        if use_mailjet:
+            outreach = EmailOutreach(settings=None, user_smtp_settings={})
+            outreach.mailjet_enabled = True
+            outreach.mailjet_api_key = mailjet_api_key or current_user.mailjet_api_key
+            outreach.mailjet_api_secret = (
+                mailjet_api_secret or current_user.mailjet_api_secret
+            )
+            outreach.email_from = (
+                current_user.smtp_username
+                or current_user.email
+                or "noreply@leadgen.com"
+            )
+        else:
+            smtp_settings = {
+                "smtp_host": current_user.smtp_host or "smtp.gmail.com",
+                "smtp_port": int(current_user.smtp_port or 587),
+                "smtp_user": current_user.smtp_username,
+                "smtp_password": current_user.smtp_password,
+                "smtp_use_tls": current_user.smtp_use_tls or True,
+                "email_from": current_user.smtp_username,
+            }
+            outreach = EmailOutreach(user_smtp_settings=smtp_settings)
 
         sender_name = current_user.name or "The LeadGen Team"
         contact_person_name = lead.contact_name or "there"
@@ -318,16 +354,45 @@ async def send_follow_up_email(
 
         logger.info(f"Sending follow-up email to {lead.email}")
 
-        smtp_settings = {
-            "smtp_host": current_user.smtp_host or "smtp.gmail.com",
-            "smtp_port": int(current_user.smtp_port or 587),
-            "smtp_user": current_user.smtp_username,
-            "smtp_password": current_user.smtp_password,
-            "smtp_use_tls": current_user.smtp_use_tls or True,
-            "email_from": current_user.smtp_username,
-        }
+        # Check for Mailjet - prioritize env vars (global), then user settings
+        import os
 
-        outreach = EmailOutreach(user_smtp_settings=smtp_settings)
+        mailjet_enabled = os.getenv("MAILJET_ENABLED", "").lower() == "true"
+        mailjet_api_key = os.getenv("MAILJET_API_KEY", "")
+        mailjet_api_secret = os.getenv("MAILJET_API_SECRET", "")
+
+        user_mailjet = (
+            current_user.mailjet_enabled
+            and current_user.mailjet_api_key
+            and current_user.mailjet_api_secret
+        )
+
+        use_mailjet = (
+            mailjet_enabled and mailjet_api_key and mailjet_api_secret
+        ) or user_mailjet
+
+        if use_mailjet:
+            outreach = EmailOutreach(settings=None, user_smtp_settings={})
+            outreach.mailjet_enabled = True
+            outreach.mailjet_api_key = mailjet_api_key or current_user.mailjet_api_key
+            outreach.mailjet_api_secret = (
+                mailjet_api_secret or current_user.mailjet_api_secret
+            )
+            outreach.email_from = (
+                current_user.smtp_username
+                or current_user.email
+                or "noreply@leadgen.com"
+            )
+        else:
+            smtp_settings = {
+                "smtp_host": current_user.smtp_host or "smtp.gmail.com",
+                "smtp_port": int(current_user.smtp_port or 587),
+                "smtp_user": current_user.smtp_username,
+                "smtp_password": current_user.smtp_password,
+                "smtp_use_tls": current_user.smtp_use_tls or True,
+                "email_from": current_user.smtp_username,
+            }
+            outreach = EmailOutreach(user_smtp_settings=smtp_settings)
 
         sender_name = current_user.name or "The LeadGen Team"
         contact_person_name = lead.contact_name or "there"

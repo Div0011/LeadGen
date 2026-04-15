@@ -23,6 +23,11 @@ class Settings:
     SMTP_USE_TLS: bool = True
     EMAIL_FROM: str = "noreply@leadgen.com"
 
+    # Mailjet API (for Vercel deployment)
+    MAILJET_API_KEY: str = ""
+    MAILJET_API_SECRET: str = ""
+    MAILJET_ENABLED: bool = False
+
     IMAP_HOST: str = "imap.gmail.com"
     IMAP_PORT: int = 993
     IMAP_USER: str = ""
@@ -79,6 +84,11 @@ class Settings:
         self.SMTP_PASSWORD = os.getenv("SMTP_PASSWORD", self.SMTP_PASSWORD)
         self.SMTP_USE_TLS = os.getenv("SMTP_USE_TLS", "true").lower() == "true"
         self.EMAIL_FROM = os.getenv("EMAIL_FROM", self.EMAIL_FROM)
+        self.MAILJET_API_KEY = os.getenv("MAILJET_API_KEY", self.MAILJET_API_KEY)
+        self.MAILJET_API_SECRET = os.getenv(
+            "MAILJET_API_SECRET", self.MAILJET_API_SECRET
+        )
+        self.MAILJET_ENABLED = os.getenv("MAILJET_ENABLED", "false").lower() == "true"
         self.HUNTER_IO_API_KEY = os.getenv("HUNTER_IO_API_KEY", self.HUNTER_IO_API_KEY)
         self.ZEROBOUNCE_API_KEY = os.getenv(
             "ZEROBOUNCE_API_KEY", self.ZEROBOUNCE_API_KEY

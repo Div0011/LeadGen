@@ -32,6 +32,11 @@ class User(Base):
     smtp_password = Column(String(255), nullable=True)
     smtp_use_tls = Column(Boolean, default=True)
 
+    # Mailjet API Settings (alternative to SMTP)
+    mailjet_api_key = Column(String(100), nullable=True)
+    mailjet_api_secret = Column(String(100), nullable=True)
+    mailjet_enabled = Column(Boolean, default=False)
+
     # Brochure
     brochure_filename = Column(String(255), nullable=True)
     brochure_path = Column(String(500), nullable=True)

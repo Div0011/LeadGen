@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Plus, Play, Pause, Trash2, BarChart3, Users, Mail, TrendingUp, ChevronRight, Edit2 } from 'lucide-react';
+import { Plus, Play, Pause, Trash2, BarChart3, Users, Mail, TrendingUp, ChevronRight, Edit2, AlertTriangle } from 'lucide-react';
 import Button from '@/components/Button';
 import GlassCard from '@/components/GlassCard';
 import { campaignsApi } from '@/services/api';
@@ -22,6 +22,8 @@ export default function CampaignsPage() {
   const router = useRouter();
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [loading, setLoading] = useState(true);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem('auth_token');
@@ -59,6 +61,29 @@ export default function CampaignsPage() {
     }
   };
 
+  const handleDeleteClick = (campaignId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setDeleteId(campaignId);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteId) return;
+    try {
+      await campaignsApi.delete(deleteId);
+      setCampaigns(campaigns.filter(c => c.id !== deleteId));
+      setShowDeleteModal(false);
+      setDeleteId(null);
+    } catch (err) {
+      alert('Failed to delete campaign');
+    }
+  };
+
+  const cancelDelete = () => {
+    setShowDeleteModal(false);
+    setDeleteId(null);
+  };
+
   const getStatusColor = (status: string) => {
     const colors: { [key: string]: string } = {
       'active': 'bg-green-100 text-green-700',
@@ -88,6 +113,13 @@ export default function CampaignsPage() {
             const isPaused = campaign.status === 'paused' || campaign.status === 'draft';
             return (
               <div key={campaign.id} className={`campaign-card ${isRunning ? 'running-camp' : isCompleted ? 'completed-camp' : 'paused-camp'}`}>
+                <button 
+                  className="camp-delete-btn" 
+                  onClick={(e) => handleDeleteClick(campaign.id, e)}
+                  title="Delete campaign"
+                >
+                  <Trash2 size={16} />
+                </button>
                 <div className="camp-status">
                   <div className="camp-status-dot"></div>
                   {campaign.status.toUpperCase()}
@@ -117,6 +149,49 @@ export default function CampaignsPage() {
             );
           })}
         </div>
+
+        {/* Delete Confirmation Modal */}
+        {showDeleteModal && (
+          <div className="modal-overlay" onClick={cancelDelete}>
+            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+              <div style={{ textAlign: 'center', padding: '1rem' }}>
+                <AlertTriangle size={48} color="var(--rust)" style={{ marginBottom: '1rem' }} />
+                <h3 style={{ color: 'var(--espresso)', marginBottom: '0.5rem' }}>Delete Campaign?</h3>
+                <p style={{ color: 'var(--umber)', marginBottom: '1.5rem' }}>
+                  This will permanently delete this campaign and all its leads. This action cannot be undone.
+                </p>
+                <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+                  <button 
+                    onClick={cancelDelete}
+                    style={{ 
+                      padding: '0.75rem 1.5rem', 
+                      border: '1px solid var(--umber)', 
+                      background: 'transparent', 
+                      color: 'var(--umber)',
+                      cursor: 'pointer',
+                      borderRadius: '6px'
+                    }}
+                  >
+                    Cancel
+                  </button>
+                  <button 
+                    onClick={confirmDelete}
+                    style={{ 
+                      padding: '0.75rem 1.5rem', 
+                      border: 'none', 
+                      background: 'var(--rust)', 
+                      color: 'white',
+                      cursor: 'pointer',
+                      borderRadius: '6px'
+                    }}
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

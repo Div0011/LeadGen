@@ -2,6 +2,8 @@ import logging
 import os
 import smtplib
 import asyncio
+import base64
+import httpx
 from typing import Optional, Dict
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -21,6 +23,17 @@ class EmailOutreach:
     ) -> None:
         self.settings = settings or Settings()
         self.base_url = getattr(self.settings, "FRONTEND_URL", "http://localhost:3000")
+
+        # Mailjet settings - check environment variables first, then settings
+        self.mailjet_enabled = os.getenv(
+            "MAILJET_ENABLED", ""
+        ).lower() == "true" or getattr(self.settings, "MAILJET_ENABLED", False)
+        self.mailjet_api_key = os.getenv("MAILJET_API_KEY", "") or getattr(
+            self.settings, "MAILJET_API_KEY", ""
+        )
+        self.mailjet_api_secret = os.getenv("MAILJET_API_SECRET", "") or getattr(
+            self.settings, "MAILJET_API_SECRET", ""
+        )
 
         # Use user-specific SMTP settings if provided
         if user_smtp_settings:
@@ -73,6 +86,110 @@ class EmailOutreach:
         return {"subject": subject, "body": body}
 
     async def send_email(
+        self,
+        to_email: str,
+        subject: str,
+        body: str,
+        html_body: Optional[str] = None,
+        pdf_attachment_path: Optional[str] = None,
+    ) -> bool:
+        # Use Mailjet API if enabled - check both flag and that keys are not empty
+        mailjet_ready = (
+            bool(self.mailjet_enabled)
+            and bool(self.mailjet_api_key)
+            and bool(self.mailjet_api_secret)
+        )
+
+        logger.info(
+            f"send_email check - mailjet_enabled={self.mailjet_enabled}, has_key={bool(self.mailjet_api_key)}, has_secret={bool(self.mailjet_api_secret)}, ready={mailjet_ready}"
+        )
+
+        if mailjet_ready:
+            return await self._send_via_mailjet(
+                to_email=to_email,
+                subject=subject,
+                body=body,
+                html_body=html_body,
+                pdf_attachment_path=pdf_attachment_path,
+            )
+
+        # Fall back to direct SMTP
+        return await self._send_via_smtp(
+            to_email=to_email,
+            subject=subject,
+            body=body,
+            html_body=html_body,
+            pdf_attachment_path=pdf_attachment_path,
+        )
+
+    async def _send_via_mailjet(
+        self,
+        to_email: str,
+        subject: str,
+        body: str,
+        html_body: Optional[str] = None,
+        pdf_attachment_path: Optional[str] = None,
+    ) -> bool:
+        """Send email via Mailjet API"""
+        logger.info(
+            f"_send_via_mailjet called - to: {to_email}, from: {self.email_from}, api_key: {self.mailjet_api_key[:10] if self.mailjet_api_key else 'None'}..."
+        )
+
+        try:
+            import json
+
+            messages = [
+                {
+                    "From": {
+                        "Email": self.email_from,
+                        "Name": self.settings.AGENCY_NAME or "Lead Gen",
+                    },
+                    "To": [{"Email": to_email}],
+                    "Subject": subject,
+                    "TextPart": body,
+                }
+            ]
+
+            if html_body:
+                messages[0]["HTMLPart"] = html_body
+
+            if pdf_attachment_path and os.path.exists(pdf_attachment_path):
+                with open(pdf_attachment_path, "rb") as f:
+                    pdf_data = base64.b64encode(f.read()).decode()
+                messages[0]["Attachments"] = [
+                    {
+                        "ContentType": "application/pdf",
+                        "Filename": os.path.basename(pdf_attachment_path),
+                        "Base64Content": pdf_data,
+                    }
+                ]
+
+            payload = {"Messages": messages}
+
+            auth = (self.mailjet_api_key, self.mailjet_api_secret)
+
+            async with httpx.AsyncClient() as client:
+                response = await client.post(
+                    "https://api.mailjet.com/v3.1/send",
+                    json=payload,
+                    auth=auth,
+                    headers={"Content-Type": "application/json"},
+                )
+
+                if response.status_code == 200:
+                    logger.info(f"Mailjet: Email sent to {to_email}")
+                    return True
+                else:
+                    logger.error(
+                        f"Mailjet error: {response.status_code} - {response.text}"
+                    )
+                    return False
+
+        except Exception as e:
+            logger.error(f"Mailjet exception: {e}")
+            return False
+
+    async def _send_via_smtp(
         self,
         to_email: str,
         subject: str,

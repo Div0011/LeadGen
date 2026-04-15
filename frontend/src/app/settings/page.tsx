@@ -28,6 +28,9 @@ export default function SettingsPage() {
     brochureUrl: '',
     smtpEmail: '',
     smtpPassword: '',
+    mailjetApiKey: '',
+    mailjetApiSecret: '',
+    mailjetEnabled: false,
     companyName: '',
     senderName: '',
     senderTitle: '',
@@ -248,6 +251,26 @@ export default function SettingsPage() {
                     </p>
                   </div>
                 </div>
+              </div>
+
+              <div style={{ borderTop: '1px solid rgba(196,148,58,0.2)', paddingTop: '1.5rem', marginTop: '0.5rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
+                  <input type="checkbox" id="mailjetEnabled" name="mailjetEnabled" checked={settings.mailjetEnabled} onChange={handleChange as any} style={{ width: '18px', height: '18px' }} />
+                  <label htmlFor="mailjetEnabled" style={{ fontWeight: 600, color: 'var(--espresso)' }}>Use Mailjet API (recommended for Vercel)</label>
+                </div>
+
+                {settings.mailjetEnabled && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', paddingLeft: '1.5rem' }}>
+                    <div className="form-group">
+                      <label className="form-label" htmlFor="mailjetApiKey">Mailjet API Key</label>
+                      <input type="text" id="mailjetApiKey" name="mailjetApiKey" value={settings.mailjetApiKey} onChange={handleChange as any} placeholder="Enter your Mailjet API Key" className="form-input" />
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label" htmlFor="mailjetApiSecret">Mailjet API Secret</label>
+                      <input type="password" id="mailjetApiSecret" name="mailjetApiSecret" value={settings.mailjetApiSecret} onChange={handleChange as any} placeholder="Enter your Mailjet API Secret" className="form-input" />
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           )}
