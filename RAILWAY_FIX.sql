@@ -31,9 +31,19 @@ ALTER TABLE user_leads ADD COLUMN IF NOT EXISTS follow_up_sent_at TIMESTAMP WITH
 ALTER TABLE user_leads ADD COLUMN IF NOT EXISTS reply_received BOOLEAN DEFAULT FALSE;
 ALTER TABLE user_leads ADD COLUMN IF NOT EXISTS reply_received_at TIMESTAMP WITH TIME ZONE;
 
+-- 3. Ensure campaign_runs.id is VARCHAR(36), not UUID
+-- Check current type and fix if needed
+ALTER TABLE campaign_runs ALTER COLUMN id TYPE VARCHAR(36);
+
+-- 4. Ensure user_leads.business_name can handle long content (was VARCHAR(255) but needed TEXT)
+ALTER TABLE user_leads ALTER COLUMN business_name TYPE TEXT;
+
 -- Verify columns were added
 SELECT column_name, data_type FROM information_schema.columns 
 WHERE table_name = 'users' ORDER BY ordinal_position;
 
 SELECT column_name, data_type FROM information_schema.columns 
 WHERE table_name = 'user_leads' ORDER BY ordinal_position;
+
+SELECT column_name, data_type FROM information_schema.columns 
+WHERE table_name = 'campaign_runs' ORDER BY ordinal_position;
