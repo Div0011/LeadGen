@@ -108,26 +108,23 @@ class AgencyLeadDiscovery:
     def search_businesses(
         self, agency_type: str, location: str = "India", max_results: int = 50
     ) -> List[Dict]:
-        """Search for businesses that need website services"""
+        """Search for businesses that NEED website services"""
         leads = []
 
-        search_queries = self.AGENCY_TYPES.get(agency_type, [agency_type])
+        # Search queries that find businesses actively LOOKING for services
+        search_queries = self._build_need_based_queries(agency_type, location)
 
         for query in search_queries:
-            if location:
-                search_query = f"{query} company {location} contact email phone"
-            else:
-                search_query = f"{query} company contact email phone"
-
-            logger.info(f"Searching: {search_query}")
+            logger.info(f"Searching: {query}")
 
             # Try multiple search sources
-            urls = self._search_google(search_query, max_results=max_results)
+            urls = self._search_google(query, max_results=max_results)
 
             for url in urls[:max_results]:
                 try:
                     lead_data = self._extract_business_info(url, query)
                     if lead_data and lead_data.get("email"):
+                        lead_data["redesign_needed"] = True  # Mark as needs service
                         leads.append(lead_data)
                         logger.info(
                             f"Found: {lead_data.get('business_name')} - {lead_data.get('email')}"
@@ -136,6 +133,48 @@ class AgencyLeadDiscovery:
                     logger.error(f"Error extracting {url}: {e}")
 
         return leads
+
+    def _build_need_based_queries(self, agency_type: str, location: str) -> List[str]:
+        """Build queries that find businesses needing services, not just service providers"""
+        base_location = location if location else ""
+
+        # Different query patterns based on agency type
+        if "redesign" in agency_type.lower() or "redesign" in agency_type.lower():
+            # Look for businesses that need redesign
+            return [
+                f"business needs website redesign {base_location} contact email",
+                f"old website needs update {base_location} contact email",
+                f"looking for website redesign service {base_location} contact email",
+                f"need to modernize website {base_location} contact email",
+            ]
+        elif "development" in agency_type.lower() or "web" in agency_type.lower():
+            # Look for businesses needing development
+            return [
+                f"need web development company {base_location} contact email",
+                f"looking for website developer {base_location} contact email",
+                f"business needs new website {base_location} contact email",
+                f"want to build website {base_location} contact email",
+                f"startup needs website {base_location} contact email",
+            ]
+        elif "ecommerce" in agency_type.lower() or "shop" in agency_type.lower():
+            return [
+                f"need ecommerce website {base_location} contact email",
+                f"want to sell online {base_location} contact email",
+                f"online store development {base_location} contact email",
+            ]
+        elif "mobile" in agency_type.lower() or "app" in agency_type.lower():
+            return [
+                f"need mobile app development {base_location} contact email",
+                f"want to build app {base_location} contact email",
+            ]
+        else:
+            # Default - find businesses needing services
+            return [
+                f"need website services {base_location} contact email",
+                f"looking for web agency {base_location} contact email",
+                f"business needs digital presence {base_location} contact email",
+                f"company wants website {base_location} contact email",
+            ]
 
     def _search_google(self, query: str, max_results: int = 50) -> List[str]:
         """Search using DuckDuckGo HTML version"""

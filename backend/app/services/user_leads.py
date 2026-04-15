@@ -106,7 +106,7 @@ class UserLeadGenerator:
 
             campaign.leads_found = len(leads)
 
-            # Validate and save leads
+            # Validate and save leads - process ALL leads, don't stop early
             validated_count = 0
             saved_leads = []
 

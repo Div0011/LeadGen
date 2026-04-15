@@ -125,6 +125,11 @@ export default function NewLeadPage() {
       setStatus('Complete!');
       setResult(response.data);
 
+      // Auto-redirect to leads page after 2 seconds
+      setTimeout(() => {
+        router.push('/leads');
+      }, 2000);
+
     } catch (err: any) {
       console.error('Failed to generate leads', err);
       setStatus(err.response?.data?.detail || 'Failed to generate leads');
