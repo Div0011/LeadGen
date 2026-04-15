@@ -95,11 +95,11 @@ class UserLead(Base):
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     user_id = Column(String(36), nullable=False, index=True)
     campaign_id = Column(String(36), nullable=True, index=True)
-    business_name = Column(String(255), nullable=False)
-    website = Column(String(500), nullable=True)
+    business_name = Column(Text, nullable=False)
+    website = Column(Text, nullable=True)
     email = Column(String(255), nullable=True)
     phone = Column(String(50), nullable=True)
-    contact_name = Column(String(255), nullable=True)
+    contact_name = Column(Text, nullable=True)
     industry = Column(String(100), nullable=True)
     location = Column(String(100), nullable=True)
     is_redesign_needed = Column(Boolean, default=False)
@@ -117,17 +117,13 @@ class UserLead(Base):
     notes = Column(Text, nullable=True)
 
     # New fields per spec
-    website_status = Column(String(20), nullable=True)  # old, slow, none, modern
+    website_status = Column(String(20), nullable=True)
     evidence = Column(Text, nullable=True)
-    recommended_service_type = Column(
-        String(50), nullable=True
-    )  # website_rebuild, website_modernization_performance, saas_development
+    recommended_service_type = Column(String(50), nullable=True)
     lead_priority_score = Column(Integer, nullable=True)
-    primary_contact_method = Column(
-        String(20), nullable=True
-    )  # email, phone, contact_form
+    primary_contact_method = Column(String(20), nullable=True)
     outreach_angle = Column(Text, nullable=True)
-    google_maps_url = Column(String(500), nullable=True)
+    google_maps_url = Column(Text, nullable=True)
 
     created_at = Column(DateTime, server_default=func.now())
 
