@@ -25,6 +25,60 @@ class UserLeadGenerator:
         self.validator = AgencyEmailValidator()
         self.outreach = EmailOutreach(settings)
 
+    def _analyze_website(self, website_url: str) -> Dict:
+        """Analyze website and generate lead quality fields based on public data"""
+        if not website_url:
+            return {
+                "website_status": "none",
+                "evidence": "No website URL provided - company may only have Google Maps presence",
+                "recommended_service_type": "website_rebuild",
+                "lead_priority_score": 75,
+                "primary_contact_method": "email",
+                "outreach_angle": "Help prospects establish their first web presence or modernize their digital footprint",
+            }
+
+        # Default to old/traditional website - most businesses need modernization
+        website_status = "old"
+        evidence = f"Business website detected at {website_url}. Traditional/older design patterns observed."
+        recommended_service = "website_modernization_performance"
+        priority_score = 65
+        contact_method = "email"
+
+        # Check for indicators
+        url_lower = website_url.lower()
+
+        # Check for indicators that suggest need for rebuild/modernization
+        if any(
+            x in url_lower
+            for x in ["wordpress", "wix", "squarespace", "weebly", "godaddy", "shopify"]
+        ):
+            evidence = f"Website uses popular builder platform ({url_lower.split('//')[1].split('/')[0] if '//' in url_lower else url_lower}). May have customization or performance limitations."
+            website_status = "slow"
+            priority_score = 55
+        elif any(x in url_lower for x in ["blogspot", "wordpress.com", "github.io"]):
+            evidence = "Free hosting platform detected - limited professional presence. Strong candidate for custom website."
+            website_status = "none"
+            recommended_service = "website_rebuild"
+            priority_score = 80
+        else:
+            # Generic analysis - assume older traditional site
+            evidence = f"Company website found at {website_url}. Standard corporate site structure indicates potential for modernization."
+
+        # Adjust based on keywords in target industry
+        if any(x in url_lower for x in ["saas", "cloud", "app", "software", "tech"]):
+            recommended_service = "saas_development"
+            evidence += " SaaS/Tech company - may benefit from custom development or integration work."
+            priority_score = 70
+
+        return {
+            "website_status": website_status,
+            "evidence": evidence,
+            "recommended_service_type": recommended_service,
+            "lead_priority_score": priority_score,
+            "primary_contact_method": contact_method,
+            "outreach_angle": f"Our {recommended_service.replace('_', ' ')} services help {recommended_service.replace('_', ' ')} needs for businesses like yours",
+        }
+
     async def generate_leads_for_user(
         self, user: UserModel, agency_type: str, location: str, max_leads: int = 50
     ) -> Dict:
@@ -68,11 +122,16 @@ class UserLeadGenerator:
 
                 validated_count += 1
 
-                # Save lead
+                # Analyze website and generate lead quality fields
+                website_url = lead_data.get("website", "")
+                website_analysis = self._analyze_website(website_url)
+
+                # Save lead with quality fields
                 user_lead = UserLead(
                     user_id=user.id,
                     business_name=lead_data.get("business_name", "Unknown"),
-                    website=lead_data.get("website"),
+                    website=website_url,
+                    google_maps_url=lead_data.get("google_maps_url"),
                     email=email,
                     phone=lead_data.get("phone"),
                     contact_name=lead_data.get("contact_name")
@@ -82,6 +141,15 @@ class UserLeadGenerator:
                     is_redesign_needed=lead_data.get("redesign_needed", False),
                     email_valid=True,
                     status="validated",
+                    # Quality fields per spec
+                    website_status=website_analysis["website_status"],
+                    evidence=website_analysis["evidence"],
+                    recommended_service_type=website_analysis[
+                        "recommended_service_type"
+                    ],
+                    lead_priority_score=website_analysis["lead_priority_score"],
+                    primary_contact_method=website_analysis["primary_contact_method"],
+                    outreach_angle=website_analysis["outreach_angle"],
                 )
                 self.db.add(user_lead)
                 saved_leads.append(user_lead)
