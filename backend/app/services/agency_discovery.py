@@ -111,20 +111,29 @@ class AgencyLeadDiscovery:
         """Search for businesses that NEED website services"""
         leads = []
 
-        # Search queries that find businesses actively LOOKING for services
+        # First try need-based queries
         search_queries = self._build_need_based_queries(agency_type, location)
+
+        # Add fallback queries from original AGENCY_TYPES
+        agency_key = (
+            agency_type.lower().replace(" ", "_").replace("+", "_").replace("-", "_")
+        )
+        if agency_key in self.AGENCY_TYPES:
+            for q in self.AGENCY_TYPES[agency_key][:3]:
+                search_queries.append(f"{q} {location}")
 
         for query in search_queries:
             logger.info(f"Searching: {query}")
 
             # Try multiple search sources
             urls = self._search_google(query, max_results=max_results)
+            logger.info(f"Found {len(urls)} URLs from search")
 
             for url in urls[:max_results]:
                 try:
                     lead_data = self._extract_business_info(url, query)
                     if lead_data and lead_data.get("email"):
-                        lead_data["redesign_needed"] = True  # Mark as needs service
+                        lead_data["redesign_needed"] = True
                         leads.append(lead_data)
                         logger.info(
                             f"Found: {lead_data.get('business_name')} - {lead_data.get('email')}"
@@ -132,48 +141,55 @@ class AgencyLeadDiscovery:
                 except Exception as e:
                     logger.error(f"Error extracting {url}: {e}")
 
+        logger.info(f"Total leads found: {len(leads)}")
         return leads
 
     def _build_need_based_queries(self, agency_type: str, location: str) -> List[str]:
         """Build queries that find businesses needing services, not just service providers"""
-        base_location = location if location else ""
+        # Clean location - remove special chars and use just city/country
+        base_location = ""
+        if location:
+            # Take only the first part if location has multiple words
+            clean_location = location.split(",")[0].strip()
+            base_location = clean_location
 
         # Different query patterns based on agency type
-        if "redesign" in agency_type.lower() or "redesign" in agency_type.lower():
-            # Look for businesses that need redesign
+        agency_lower = agency_type.lower().replace("+", " ").replace("-", " ")
+
+        if "redesign" in agency_lower:
             return [
-                f"business needs website redesign {base_location} contact email",
-                f"old website needs update {base_location} contact email",
-                f"looking for website redesign service {base_location} contact email",
-                f"need to modernize website {base_location} contact email",
+                f"business needs website redesign {base_location}",
+                f"old website needs update {base_location}",
+                f"looking for website redesign service {base_location}",
             ]
-        elif "development" in agency_type.lower() or "web" in agency_type.lower():
-            # Look for businesses needing development
+        elif (
+            "development" in agency_lower
+            or "web" in agency_lower
+            or "saas" in agency_lower
+        ):
             return [
-                f"need web development company {base_location} contact email",
-                f"looking for website developer {base_location} contact email",
-                f"business needs new website {base_location} contact email",
-                f"want to build website {base_location} contact email",
-                f"startup needs website {base_location} contact email",
+                f"need web development company {base_location}",
+                f"looking for website developer {base_location}",
+                f"business needs new website {base_location}",
+                f"startup needs website {base_location}",
             ]
-        elif "ecommerce" in agency_type.lower() or "shop" in agency_type.lower():
+        elif "ecommerce" in agency_lower or "shop" in agency_lower:
             return [
-                f"need ecommerce website {base_location} contact email",
-                f"want to sell online {base_location} contact email",
-                f"online store development {base_location} contact email",
+                f"need ecommerce website {base_location}",
+                f"want to sell online {base_location}",
+                f"online store development {base_location}",
             ]
-        elif "mobile" in agency_type.lower() or "app" in agency_type.lower():
+        elif "mobile" in agency_lower or "app" in agency_lower:
             return [
-                f"need mobile app development {base_location} contact email",
-                f"want to build app {base_location} contact email",
+                f"need mobile app development {base_location}",
+                f"want to build app {base_location}",
             ]
         else:
             # Default - find businesses needing services
             return [
-                f"need website services {base_location} contact email",
-                f"looking for web agency {base_location} contact email",
-                f"business needs digital presence {base_location} contact email",
-                f"company wants website {base_location} contact email",
+                f"need website services {base_location}",
+                f"looking for web agency {base_location}",
+                f"business needs website {base_location}",
             ]
 
     def _search_google(self, query: str, max_results: int = 50) -> List[str]:
