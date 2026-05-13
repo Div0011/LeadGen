@@ -1,36 +1,74 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🎨 LeadGen Pro - Frontend
 
-## Getting Started
+This is the frontend application for LeadGen Pro, built with **Next.js 16**, **React 19**, and **Tailwind CSS 4**. It features a modern, high-performance interface with glassmorphic design elements and smooth animations.
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## ✨ Features
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- **🛡️ Secure Auth**: Integration with the FastAPI backend for registration and login.
+- **✨ Glassmorphic UI**: Custom `GlassCard` and `GlassButton` components for a premium aesthetic.
+- **🛠️ Smart Onboarding**: Multi-step onboarding process to set up campaigns and profiles.
+- **📱 Responsive Design**: Fully optimized for desktop, tablet, and mobile devices.
+- **🌀 Dynamic Animations**: Powered by Framer Motion for fluid state transitions.
+- **📊 Interactive Dashboard**: Real-time visualization of lead data and campaign performance.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🛠️ Tech Stack
 
-## Learn More
+- **Framework**: [Next.js 16](https://nextjs.org/) (App Router)
+- **State Management**: React Hooks & Context API
+- **Styling**: [Tailwind CSS 4](https://tailwindcss.com/)
+- **Animations**: [Framer Motion](https://www.framer.com/motion/)
+- **Icons**: [Lucide React](https://lucide.dev/)
+- **HTTP Client**: [Axios](https://axios-http.com/)
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🚀 Getting Started
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Prerequisites
+- Node.js 18+
+- Backend server running (see root README)
 
-## Deploy on Vercel
+### Installation
+1. Install dependencies:
+   ```bash
+   npm install
+   ```
+2. Set up environment variables:
+   Create a `.env.local` file:
+   ```env
+   NEXT_PUBLIC_API_URL=http://localhost:8000
+   ```
+3. Run the development server:
+   ```bash
+   npm run dev
+   ```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Open [http://localhost:3000](http://localhost:3000) to view the application.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+## 📁 Folder Structure
+
+- `src/app/`: App router pages and layouts.
+- `src/components/`: Reusable UI components.
+- `src/hooks/`: Custom React hooks.
+- `src/lib/`: Utility functions and API configuration.
+- `src/styles/`: Global CSS and Tailwind configuration.
+
+---
+
+## 🚢 Deployment
+
+The frontend is optimized for deployment on **Vercel** or **Netlify**.
+
+1. Connect your repository to Vercel.
+2. Configure the `NEXT_PUBLIC_API_URL` environment variable.
+3. Deploy!
+
+---
+
+*Part of the [LeadGen Pro](..) ecosystem.*

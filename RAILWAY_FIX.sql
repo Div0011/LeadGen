@@ -35,8 +35,11 @@ ALTER TABLE user_leads ADD COLUMN IF NOT EXISTS reply_received_at TIMESTAMP WITH
 -- Check current type and fix if needed
 ALTER TABLE campaign_runs ALTER COLUMN id TYPE VARCHAR(36);
 
--- 4. Ensure user_leads.business_name can handle long content (was VARCHAR(255) but needed TEXT)
+-- 4. Ensure user_leads columns can handle long content
 ALTER TABLE user_leads ALTER COLUMN business_name TYPE TEXT;
+ALTER TABLE user_leads ALTER COLUMN website TYPE TEXT;
+ALTER TABLE user_leads ALTER COLUMN contact_name TYPE TEXT;
+ALTER TABLE user_leads ALTER COLUMN google_maps_url TYPE TEXT;
 
 -- Verify columns were added
 SELECT column_name, data_type FROM information_schema.columns 
